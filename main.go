@@ -82,9 +82,9 @@ func main() {
 				off++
 			}
 		}
-		ui.StatusCard.Objects[1].(*widget.Label).SetText("Total de IPs: " + itoa(total))
-		ui.StatusCard.Objects[2].(*widget.Label).SetText("Online: " + itoa(on))
-		ui.StatusCard.Objects[3].(*widget.Label).SetText("Offline: " + itoa(off))
+		ui.StatusCard.Objects[2].(*widget.Label).SetText("Total de IPs: " + itoa(total))
+		ui.StatusCard.Objects[3].(*widget.Label).SetText("Online: " + itoa(on))
+		ui.StatusCard.Objects[4].(*widget.Label).SetText("Offline: " + itoa(off))
 		ui.IPList.Refresh()
 	}
 

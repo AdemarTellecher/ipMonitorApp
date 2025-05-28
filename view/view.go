@@ -40,12 +40,17 @@ func NewMainView(app fyne.App, refreshList func(), updateStatus func(), addIP fu
 
 	titleBox := container.NewStack(bgTitle, container.NewCenter(title))
 
+	// Criação dos labels de status para evitar duplicidade
+	totalLabel := widget.NewLabelWithStyle("Total de IPs: 0", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	onlineLabel := widget.NewLabelWithStyle("Online: 0", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	offlineLabel := widget.NewLabelWithStyle("Offline: 0", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+
 	statusCard := container.NewVBox(
 		titleBox,
 		widget.NewLabelWithStyle("Resumo do Monitoramento", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
-		widget.NewLabelWithStyle("Total de IPs: 0", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
-		widget.NewLabelWithStyle("Online: 0", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
-		widget.NewLabelWithStyle("Offline: 0", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+		totalLabel,
+		onlineLabel,
+		offlineLabel,
 	)
 	statusCardBox := widget.NewCard("", "", container.NewPadded(statusCard))
 

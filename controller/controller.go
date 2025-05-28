@@ -5,6 +5,8 @@ import (
 	"ipmonitorapp/model"
 	"net"
 	"time"
+
+	"github.com/go-ping/ping"
 )
 
 type IPController struct {
@@ -42,9 +44,19 @@ func (c *IPController) UpdateAllStatuses() {
 }
 
 func checkIPOnline(ip string) string {
-	conn, err := net.DialTimeout("tcp", net.JoinHostPort(ip, "80"), 2*time.Second)
-	if err == nil {
-		conn.Close()
+	pinger, err := ping.NewPinger(ip)
+	if err != nil {
+		return "Offline"
+	}
+	pinger.Count = 1
+	pinger.Timeout = 2 * time.Second
+	pinger.SetPrivileged(true)
+	err = pinger.Run()
+	if err != nil {
+		return "Offline"
+	}
+	stats := pinger.Statistics()
+	if stats.PacketsRecv > 0 {
 		return "Online"
 	}
 	return "Offline"

@@ -1,0 +1,16 @@
+# Ignorar executáveis gerados
+*.exe
+
+# Ignorar banco de dados local
+*.db
+
+# Ignorar dependências e arquivos temporários do Go
+/bin/
+/pkg/
+
+# Ignorar arquivos do VSCode
+.vscode/
+
+# Ignorar arquivos temporários do sistema
+.DS_Store
+Thumbs.db

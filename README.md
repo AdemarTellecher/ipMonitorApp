@@ -40,6 +40,21 @@ Aplicativo multiplataforma em Go para monitoramento de IPs (online/offline) com 
    ```
    (No Linux/macOS, use `./ipmonitorapp`)
 
+## Executando sem abrir o terminal (Windows)
+
+Para que o aplicativo rode apenas com a interface gráfica, sem abrir o terminal cmd junto:
+
+1. Compile usando o comando abaixo:
+   ```sh
+   go build -ldflags="-H=windowsgui" -o ipMonitor-gui.exe main.go
+   ```
+2. Execute o arquivo `ipMonitor-gui.exe` normalmente. Apenas a janela gráfica será exibida.
+
+Se desejar rodar pelo terminal (para ver logs), use o comando padrão:
+```sh
+   go run main.go
+```
+
 ## Como usar
 
 1. **Adicionar IP:**
@@ -72,6 +87,36 @@ Aplicativo multiplataforma em Go para monitoramento de IPs (online/offline) com 
 
 ## Suporte
 - Dúvidas, sugestões ou bugs: abra uma issue no repositório ou entre em contato com o desenvolvedor.
+
+## Build multiplataforma (Makefile)
+
+Para compilar o app para Windows, Linux e macOS usando o Makefile:
+
+### Pré-requisito
+- Tenha o [Make](https://www.gnu.org/software/make/) instalado no seu sistema.
+- Tenha o Go instalado e configurado no PATH.
+
+### Windows
+No terminal (cmd ou PowerShell):
+```sh
+make windows   # Gera ipMonitorApp-win.exe
+make linux     # Gera ipMonitorApp-linux
+make macos     # Gera ipMonitorApp-macos
+make all       # Gera para todas as plataformas
+make clean     # Remove os binários gerados
+```
+
+### Linux/macOS
+No terminal:
+```sh
+make windows   # Gera ipMonitorApp-win.exe
+make linux     # Gera ipMonitorApp-linux
+make macos     # Gera ipMonitorApp-macos
+make all       # Gera para todas as plataformas
+make clean     # Remove os binários gerados
+```
+
+Os binários gerados ficam na raiz do projeto.
 
 ---
 

@@ -3,9 +3,9 @@
 APP_NAME=ipMonitorApp
 SRC=main.go
 
-.PHONY: all windows linux macos clean
+.PHONY: all windows linux macos android ios clean
 
-all: windows linux macos
+all: windows linux macos android ios
 
 windows:
 	GOOS=windows GOARCH=amd64 go build -ldflags="-H=windowsgui" -o $(APP_NAME)-win.exe $(SRC)
@@ -15,6 +15,12 @@ linux:
 
 macos:
 	GOOS=darwin GOARCH=amd64 go build -o $(APP_NAME)-macos $(SRC)
+
+android:
+	fyne package -os android -icon Icon.png -name "$(APP_NAME)" -appID com.example.$(APP_NAME)
+
+ios:
+	fyne package -os ios -icon Icon.png -name "$(APP_NAME)" -appID com.example.$(APP_NAME)
 
 clean:
 	rm -f $(APP_NAME)-win.exe $(APP_NAME)-linux $(APP_NAME)-macos

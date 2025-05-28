@@ -118,6 +118,25 @@ make clean     # Remove os binários gerados
 
 Os binários gerados ficam na raiz do projeto.
 
+## Build para Android e iOS (Fyne)
+
+Para gerar o app para Android e iOS, é necessário:
+- Instalar o [Fyne CLI](https://developer.fyne.io/started/packaging)
+- Ter o ambiente de build configurado (Android SDK/NDK para Android, Xcode para iOS)
+- Ter um ícone chamado `Icon.png` na raiz do projeto
+
+### Android
+```sh
+make android   # Gera o APK na pasta 'fyne-cross/dist' ou na raiz
+```
+
+### iOS
+```sh
+make ios       # Gera o pacote iOS na pasta 'fyne-cross/dist' ou na raiz
+```
+
+Veja a documentação oficial do Fyne para detalhes de publicação e testes em dispositivos reais.
+
 ---
 
 Desenvolvido com Go, Fyne e SQLite3.

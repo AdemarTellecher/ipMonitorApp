@@ -118,6 +118,29 @@ make clean     # Remove os binários gerados
 
 Os binários gerados ficam na raiz do projeto.
 
+## Como executar o Makefile no Windows
+
+1. Instale o Make para Windows:
+   - Via Chocolatey:
+     ```sh
+     choco install make
+     ```
+   - Ou via Scoop:
+     ```sh
+     scoop install make
+     ```
+   - Ou baixe manualmente em: https://gnuwin32.sourceforge.net/packages/make.htm
+
+2. Feche e reabra o terminal após a instalação (para garantir que o comando make esteja no PATH).
+
+3. Navegue até a pasta do projeto e execute:
+   ```sh
+   make windows
+   ```
+   Ou qualquer outro comando do Makefile conforme desejado.
+
+Se aparecer erro de comando não encontrado, adicione o caminho do make.exe ao PATH do sistema.
+
 ## Build para Android e iOS (Fyne)
 
 Para gerar o app para Android e iOS, é necessário:

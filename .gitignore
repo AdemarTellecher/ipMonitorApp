@@ -2,7 +2,10 @@
 *.exe
 
 # Ignorar banco de dados local
+#ipmonitor.db
 *.db
+# Ignorar arquivos de configuração do banco de dados
+*.sqlite
 
 # Ignorar dependências e arquivos temporários do Go
 /bin/
@@ -10,6 +13,16 @@
 
 # Ignorar arquivos do VSCode
 .vscode/
+.github/
+# Ignorar arquivos de configuração do GoLand
+.idea/
+# Ignorar arquivos de log  
+*.log
+
+# Ignorar arquivos de configuração do editor
+*.swp  
+# Ignorar arquivos de cache
+*.cache
 
 # Ignorar arquivos temporários do sistema
 .DS_Store

@@ -130,6 +130,8 @@ Os binários gerados ficam na raiz do projeto.
      scoop install make
      ```
    - Ou baixe manualmente em: https://gnuwin32.sourceforge.net/packages/make.htm
+   
+   - Instale a extensão [Makefile Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.makefile-tools)
 
 2. Feche e reabra o terminal após a instalação (para garantir que o comando make esteja no PATH).
 

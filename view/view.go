@@ -33,7 +33,7 @@ type ViewComponents struct {
 func NewMainView(app fyne.App, refreshList func(), updateStatus func(), addIP func(), removeIP func(), onSelect func(int)) *ViewComponents {
 	w := app.NewWindow("IP Monitor App")
 
-	title := widget.NewLabelWithStyle("IP Monitor App", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+	title := widget.NewLabelWithStyle("IP Monitor - App", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
 	bgTitle := canvas.NewRectangle(color.RGBA{30, 60, 120, 255})
 	bgTitle.SetMinSize(fyne.NewSize(440, 40))
 	title.TextStyle = fyne.TextStyle{Bold: true}

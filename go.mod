@@ -1,4 +1,4 @@
-module ipmonitorapp
+module github.com/AdemarTellecher/ipmonitorapp
 
 go 1.24.3
 

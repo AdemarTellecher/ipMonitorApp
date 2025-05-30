@@ -16,6 +16,9 @@
 .github/
 # Ignorar arquivos de configuração do GoLand
 .idea/
+go.mod
+go.sum
+
 # Ignorar arquivos de log  
 *.log
 

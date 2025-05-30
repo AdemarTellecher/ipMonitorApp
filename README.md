@@ -1,5 +1,10 @@
 # IP Monitor App
 
+<p align="center">
+  <img src="docs/screenshot-dark.png" alt="IP Monitor App - Tema Escuro" width="350"/>
+  <img src="docs/screenshot-light.png" alt="IP Monitor App - Tema Claro" width="350"/>
+</p>
+
 Aplicativo multiplataforma em Go para monitoramento de IPs (online/offline) com interface gráfica (Fyne) e persistência local em SQLite3.
 
 ## Funcionalidades

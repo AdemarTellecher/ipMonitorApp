@@ -88,31 +88,21 @@ Se desejar rodar pelo terminal (para ver logs), use o comando padrão:
 ## Suporte
 - Dúvidas, sugestões ou bugs: abra uma issue no repositório ou entre em contato com o desenvolvedor.
 
-## Build multiplataforma (Makefile)
-
-Para compilar o app para Windows, Linux e macOS usando o Makefile:
-
-### Pré-requisito
-- Tenha o [Make](https://www.gnu.org/software/make/) instalado no seu sistema.
-- Tenha o Go instalado e configurado no PATH.
+## Build multiplataforma (Makefile e make.bat)
 
 ### Windows
-No terminal (cmd ou PowerShell):
-```sh
-make windows   # Gera ipMonitorApp-win.exe
-make linux     # Gera ipMonitorApp-linux
-make macos     # Gera ipMonitorApp-macos
-make all       # Gera para todas as plataformas
-make clean     # Remove os binários gerados
+Para compilar o app no Windows, utilize o script:
+```bat
+make.bat
 ```
+Isso irá gerar o executável `ipMonitorApp-win.exe` na raiz do projeto.
 
 ### Linux/macOS
 No terminal:
 ```sh
-make windows   # Gera ipMonitorApp-win.exe
 make linux     # Gera ipMonitorApp-linux
 make macos     # Gera ipMonitorApp-macos
-make all       # Gera para todas as plataformas
+make all       # Gera para todas as plataformas (exceto Windows)
 make clean     # Remove os binários gerados
 ```
 

@@ -16,8 +16,6 @@
 .github/
 # Ignorar arquivos de configuração do GoLand
 .idea/
-go.mod
-go.sum
 
 # Ignorar arquivos de log  
 *.log
@@ -30,3 +28,7 @@ go.sum
 # Ignorar arquivos temporários do sistema
 .DS_Store
 Thumbs.db
+
+# Ignorar arquivos de módulo do Go
+go.mod
+go.sum

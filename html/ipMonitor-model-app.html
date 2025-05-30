@@ -1,0 +1,109 @@
+<!-- ...existing code... -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC Manager Responsivo</title>
+    <link rel="stylesheet" href="ipMonitor-model-app.css">
+</head>
+<body>
+    <div class="pc-manager-window">
+        <div class="title-bar">
+            <span class="title">PC Manager</span>
+            <div class="window-controls">
+                <span class="minimize-btn"></span>
+                <span class="close-btn"></span>
+            </div>
+        </div>
+        <div class="app-body">
+            <nav class="sidebar">
+                <ul>
+                    <li class="active"><span class="icon">🏠</span> Início</li>
+                    <li><span class="icon">🛡️</span> Proteção</li>
+                    <li><span class="icon">💽</span> Armazen...</li>
+                    <li><span class="icon">🧩</span> Aplicativos</li>
+                    <li><span class="icon">🛠️</span> Caixa de...</li>
+                </ul>
+                 <ul class="bottom-items">
+                    <li class="separator-container"><div class="separator"></div></li>
+                    <li><span class="icon">🔄</span> Restaurar</li>
+                    <li><span class="icon">⚙️</span> Configura...</li>
+                    <li><span class="icon">💬</span> Coment...</li>
+                </ul>
+            </nav>
+            <main class="main-content">
+                <section class="popup-management">
+                    <div class="icon-area">
+                        <span class="icon"></span>
+                    </div>
+                    <div class="text-area">
+                        <p class="main-text">Incomodado com anúncios pop-up em ap...</p>
+                        <p class="sub-text">Ative o <strong>Gerenciamento de Pop-ups</strong> para reduzir o incômodo de pop-ups do aplicativo.</p>
+                    </div>
+                </section>
+
+                <section class="performance-improvement">
+                    <div class="header">
+                        <div class="title-group">
+                            <span class="icon">✨</span>
+                            <h2>Melhoria de desempenho</h2>
+                        </div>
+                        <a href="#" class="settings-link"><span class="icon">⚙️</span> Definir aumento inte...</a>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-item memory-usage">
+                            <div class="percentage">86%</div>
+                            <div class="label">Uso da memória</div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 86%;"></div>
+                            </div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="stat-item temp-files">
+                            <div class="value">907MB</div>
+                            <div class="label">Arquivos temporários</div>
+                        </div>
+                    </div>
+                    <button class="boost-button">Aumentar</button>
+                </section>
+
+                <section class="quick-actions">
+                    <div class="action-card">
+                        <h3>Exame de saúde</h3>
+                        <span class="card-icon">🖥️</span>
+                        <div>
+                            <p>Última verificação</p>
+                            <p class="status">--</p>
+                        </div>
+                    </div>
+                    <div class="action-card">
+                        <h3>Processo</h3>
+                        <span class="card-icon">📋</span>
+                        <div>
+                            <p>Em andamento</p>
+                            <p class="status">19 Aplicativos</p>
+                        </div>
+                    </div>
+                    <div class="action-card">
+                        <h3>Limpeza profunda</h3>
+                        <span class="card-icon">🧹</span>
+                        <div>
+                            <p>Disco local (C:)</p>
+                            <p class="status">182,9GB/476,1GB</p>
+                        </div>
+                    </div>
+                    <div class="action-card">
+                        <h3>Inicializar</h3>
+                        <span class="card-icon">🔌</span>
+                        <div>
+                            <p>Hora de início</p>
+                            <p class="status">2 Segundos</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 # Makefile para build multiplataforma do IP Monitor App
 
 APP_NAME=ipMonitorApp
-SRC=main.go
+SRC=cmd/main.go
 
 .PHONY: all linux macos android ios clean
 

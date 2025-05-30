@@ -1,0 +1,522 @@
+/* Estilos para a janela do PC Manager, adaptados para visualização tipo desktop */
+/* Estilos gerais para a janela do PC Manager */
+:root {
+    --bg-window: #1E1F22;
+    --bg-sidebar: #2B2D30;
+    --bg-main-content: #202124;
+    --bg-card: #2B2D30;
+    --bg-popup-banner: #35393E;
+    --primary-blue: #0078D4;
+    --text-white: #E0E0E0;
+    --text-light-gray: #B0B0B0;
+    --text-dark-gray: #808080;
+    --border-color: #4A4A4A;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --icon-color: #A0A0A0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: #555;
+    color: var(--text-white);
+    margin: 0;
+    padding: 20px; /* Preenchimento padrão para telas maiores */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.pc-manager-window {
+    width: 780px;
+    height: 600px; /* Altura fixa para visualização tipo desktop */
+    background-color: var(--bg-main-content);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Previne que o conteúdo transborde com altura fixa */
+}
+
+.title-bar {
+    background-color: var(--bg-window);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+.title-bar .title {
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--text-light-gray);
+}
+
+.window-controls span {
+    margin-left: 15px;
+    cursor: default;
+    font-family: 'Segoe MDL2 Assets', 'Symbols Nerd Font', 'Arial', sans-serif;
+    color: var(--text-light-gray);
+}
+.window-controls .minimize-btn::before { content: "\E921"; font-size: 0.7em;}
+.window-controls .close-btn::before { content: "\E8BB"; font-size: 0.7em;}
+
+.app-body {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden; /* Controla o transbordamento potencial se o conteúdo for muito alto para a altura fixa */
+}
+
+.sidebar {
+    width: 180px;
+    background-color: var(--bg-sidebar);
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto; /* Rolagem para a barra lateral se os itens excederem a altura */
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.sidebar li {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.95em;
+    color: var(--text-light-gray);
+    border-left: 3px solid transparent; /* Para consistência, embora o estilo ativo sobrescreva */
+}
+
+.sidebar li:hover {
+    background-color: #3A3D40;
+}
+
+.sidebar li.active {
+    background-color: var(--primary-blue); /* Cor de fundo direta para o estado ativo */
+    color: var(--text-white);
+    font-weight: 500; /* Ligeiramente menos negrito que 600 para equilíbrio */
+    border-left-color: var(--primary-blue); /* Garante que a borda combine, se mantida */
+}
+/* Elemento ::before removido para o indicador ativo, confiando no fundo/borda */
+
+.sidebar .icon {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1em;
+    color: var(--icon-color);
+}
+.sidebar li.active .icon {
+    color: var(--text-white);
+}
+
+.sidebar .separator-container { /* Contêiner para o separador para controle mais fácil */
+    padding:0;
+    height: auto; /* Redefine altura */
+}
+.sidebar .separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 5px 15px; /* Margem reduzida para compactação */
+}
+    .sidebar .bottom-items {
+    margin-top: auto;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: var(--bg-main-content);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto; /* Permitir que o conteúdo principal role se exceder a altura da janela */
+}
+
+.popup-management {
+    background-color: var(--bg-popup-banner);
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.popup-management .icon-area {
+    font-size: 1.8em;
+    margin-right: 15px;
+    color: var(--primary-blue);
+}
+.popup-management .icon-area .icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--primary-blue);
+    border-radius: 50%;
+    position: relative;
+}
+.popup-management .icon-area .icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary-blue);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.popup-management .text-area .main-text {
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    font-size: 0.95em;
+}
+
+.popup-management .text-area .sub-text {
+    margin: 0;
+    font-size: 0.85em;
+    color: var(--text-light-gray);
+}
+.popup-management .text-area .sub-text strong {
+    font-weight: 600;
+    color: var(--text-white);
+}
+
+.performance-improvement {
+    background-color: var(--bg-card);
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.performance-improvement .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Permitir quebra de linha em telas menores */
+    gap: 10px; /* Espaçamento se os itens quebrarem linha */
+}
+
+.performance-improvement .header .title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.performance-improvement .header .icon {
+    font-size: 1.3em;
+    color: var(--primary-blue);
+}
+
+.performance-improvement .header h2 {
+    font-size: 1.1em;
+    margin: 0;
+    font-weight: 600;
+}
+
+.performance-improvement .settings-link {
+    font-size: 0.85em;
+    color: var(--primary-blue);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.performance-improvement .settings-link .icon {
+    font-size: 1em;
+}
+
+.performance-improvement .stats {
+    display: flex;
+    /* justify-content: space-around; Padrão, será sobrescrito pelos itens */
+    align-items: flex-start;
+    margin-bottom: 25px;
+    gap: 20px;
+}
+
+.performance-improvement .stat-item {
+    text-align: left;
+    flex: 1; /* Distribuir o espaço igualmente */
+    min-width: 150px; /* Impedir que os itens fiquem muito estreitos */
+}
+.performance-improvement .stat-item.memory-usage {
+        /* Nenhum preenchimento específico necessário se o espaçamento flex (gap) cuidar disso */
+}
+.performance-improvement .stat-item.temp-files {
+    /* Nenhum preenchimento específico necessário */
+}
+
+.performance-improvement .stat-item .percentage,
+.performance-improvement .stat-item .value {
+    font-size: 2.2em;
+    font-weight: 600;
+    color: var(--text-white);
+    line-height: 1.1;
+}
+
+.performance-improvement .stat-item .label {
+    font-size: 0.85em;
+    color: var(--text-light-gray);
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.performance-improvement .progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background-color: #444;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.performance-improvement .progress-bar {
+    height: 100%;
+    background-color: var(--primary-blue);
+    border-radius: 3px;
+}
+.performance-improvement .divider {
+    width: 1px;
+    background-color: var(--border-color);
+    align-self: stretch;
+    margin: 5px 0;
+}
+
+.boost-button {
+    background-color: var(--primary-blue);
+    color: var(--text-white);
+    border: none;
+    border-radius: 4px;
+    padding: 12px 0;
+    width: 100%;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+}
+.boost-button:hover {
+    background-color: #005A9E;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    /* flex-grow: 1; -- Não é mais necessário se o main-content rolar */
+}
+
+.action-card {
+    background-color: var(--bg-card);
+    border-radius: 6px;
+    padding: 15px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 120px; /* Garantir que os cards tenham alguma altura mínima */
+}
+
+.action-card h3 {
+    font-size: 1em;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.action-card .card-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.4em;
+    color: var(--icon-color);
+}
+
+.action-card p {
+    margin: 2px 0;
+    font-size: 0.85em;
+    color: var(--text-light-gray);
+}
+.action-card p.status {
+    font-size: 0.9em;
+    color: var(--text-white);
+    font-weight: 500;
+}
+.action-card div > p:last-child { /* Assumindo que o status está envolto em uma div */
+    margin-top: auto;
+}
+
+/* --- Responsividade --- */
+
+/* Visualização para Tablet / Desktops Menores */
+@media (max-width: 1024px) {
+    .pc-manager-window {
+        width: 95%;
+        max-width: 700px; /* Ajustar largura máxima se necessário */
+            /* height: auto; Deixar o conteúdo definir a altura ou altura mínima fixa */
+        min-height: 550px; /* Permitir encolhimento, mas não muito */
+        height: auto; /* Permitir que cresça se o conteúdo precisar */
+        overflow: visible; /* Permitir que a sombra seja vista se a janela encolher */
+    }
+    .app-body {
+            overflow: visible; /* Garantir que a rolagem funcione dentro da sidebar/main-content */
+    }
+
+    .performance-improvement .stats {
+        flex-direction: column;
+        align-items: stretch; /* Fazer os itens de estatísticas ocuparem a largura total */
+        gap: 20px; /* Espaço entre itens empilhados */
+    }
+    .performance-improvement .stats .divider {
+        display: none; /* Ocultar divisor vertical */
+    }
+        .performance-improvement .stat-item.memory-usage::after { /* Divisor horizontal opcional */
+        content: "";
+        display: block;
+        height: 1px;
+        background-color: var(--border-color);
+        margin-top: 20px; /* Espaço após o conteúdo do item */
+    }
+    .performance-improvement .stat-item {
+        min-width: unset; /* Redefinir largura mínima (min-width) */
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr; /* Empilhar cards em uma única coluna */
+    }
+}
+
+/* Visualização para Celular */
+@media (max-width: 767px) {
+    body {
+        padding: 0; /* Largura total para a janela do aplicativo */
+        align-items: flex-start; /* Alinhar janela ao topo no mobile */
+    }
+    .pc-manager-window {
+        width: 100%;
+        height: 100vh; /* Altura total da viewport */
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        margin:0;
+        overflow-y: hidden; /* A própria janela não deve rolar, o app-body sim */
+    }
+
+    .app-body {
+        flex-direction: column;
+        overflow-y: auto; /* Contêiner principal de rolagem para mobile */
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto; /* Ajustar altura ao conteúdo */
+        order: -1; /* Colocar a barra lateral no topo */
+        padding: 5px 0;
+        overflow-y: visible; /* O conteúdo da barra lateral não deve rolar independentemente aqui */
+    }
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap; /* Permitir que os itens quebrem para a próxima linha */
+        justify-content: center;
+    }
+    .sidebar li {
+        flex: 1 1 auto; /* Permitir que os itens cresçam e encolham, base automática */
+        min-width: 100px; /* Largura mínima para cada item da barra lateral */
+        text-align: center;
+        border-left: none;
+        border-bottom: 1px solid var(--bg-window); /* Separador para itens horizontais */
+        padding: 10px 8px; /* Ajustar preenchimento */
+    }
+    .sidebar li.active {
+        /* Manter fundo ativo, border-left é removida */
+    }
+        .sidebar .separator-container {
+        display: none; /* Ocultar linha separadora visual */
+    }
+    .sidebar .bottom-items {
+        margin-top: 0; /* Remover o deslocamento para baixo para layout flex */
+        width: 100%; /* Garantir que a lista de itens inferiores ocupe toda a largura se também for flex */
+    }
+        .sidebar .bottom-items ul { /* Garantir que a lista inferior também use flex */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+
+    .main-content {
+        padding: 15px;
+        gap: 20px; /* Ajustar espaçamento (gap) para mobile */
+        overflow-y: visible; /* Rolagem de conteúdo gerenciada pelo app-body */
+    }
+
+    .popup-management {
+        flex-direction: column;
+        align-items: flex-start; /* Alinhar ícone e texto ao início */
+        text-align: left;
+    }
+    .popup-management .icon-area {
+        margin-right: 0;
+        margin-bottom: 10px; /* Espaço entre ícone e texto */
+    }
+
+    .performance-improvement .header {
+        flex-direction: column;
+        align-items: flex-start; /* Alinhar título e link ao início */
+    }
+        .performance-improvement .settings-link {
+        margin-top: 5px; /* Espaço se quebrar para a linha de baixo */
+    }
+        .performance-improvement .stat-item .percentage,
+        .performance-improvement .stat-item .value {
+        font-size: 1.8em; /* Ligeiramente menor para mobile */
+    }
+        .performance-improvement .stat-item.memory-usage::after { /* Ocultar divisor horizontal no mobile se empilhado de forma diferente */
+        display: none;
+    }
+
+
+    .action-card {
+        min-height: 100px; /* Ajustar altura mínima para cards no mobile */
+    }
+    .action-card .card-icon {
+        font-size: 1.2em; /* Ícone ligeiramente menor no mobile */
+    }
+}
+
+    /* Ajustes para Visualização em Celulares Menores */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 10px;
+    }
+    .popup-management, .performance-improvement, .action-card {
+        padding: 10px;
+    }
+    .sidebar li {
+        font-size: 0.9em; /* Fonte ligeiramente menor para itens da barra lateral */
+        min-width: 80px;
+    }
+    .performance-improvement .header h2 {
+        font-size: 1em;
+    }
+    .performance-improvement .stat-item .label {
+        font-size: 0.8em;
+    }
+    .boost-button {
+        padding: 10px 0;
+        font-size: 0.95em;
+    }
+    .action-card h3 {
+        font-size: 0.95em;
+    }
+    .action-card p {
+        font-size: 0.8em;
+    }
+}

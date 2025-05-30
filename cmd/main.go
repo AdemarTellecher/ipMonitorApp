@@ -6,10 +6,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/AdemarTellecher/ipmonitorapp/controller"
-	"github.com/AdemarTellecher/ipmonitorapp/model"
+	"github.com/AdemarTellecher/ipmonitorapp/internal/controller"
+	"github.com/AdemarTellecher/ipmonitorapp/internal/model"
 
-	"github.com/AdemarTellecher/ipmonitorapp/view"
+	"github.com/AdemarTellecher/ipmonitorapp/internal/view"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"

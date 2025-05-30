@@ -1,7 +1,7 @@
 @echo off
 REM Build do IP Monitor App para Windows
 set APP_NAME=ipMonitorApp
-set SRC=main.go
+set SRC=cmd/main.go
 
 echo Compilando para Windows...
 go build -ldflags="-H=windowsgui" -o %APP_NAME%-win.exe %SRC%

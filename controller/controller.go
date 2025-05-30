@@ -2,9 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"ipmonitorapp/model"
 	"net"
 	"time"
+
+	"github.com/AdemarTellecher/ipmonitorapp/model"
 
 	"github.com/go-ping/ping"
 )

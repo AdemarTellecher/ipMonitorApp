@@ -6,6 +6,7 @@
 </p>
 
 Aplicativo multiplataforma em Go para monitoramento de IPs (online/offline) com interface gráfica (Fyne) e persistência local em SQLite3.
+Este é um projet funcional, prem simples, tendo como objetivo o estudo da linguagem ```"Golang"``` e a biblioteca cross-plataforma [fyne.io](https://fyne.io)
 
 ## Funcionalidades
 - Cadastro de IPs para monitoramento

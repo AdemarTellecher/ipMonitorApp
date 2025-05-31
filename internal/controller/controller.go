@@ -5,8 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/AdemarTellecher/ipmonitorapp/model"
-
+	"github.com/AdemarTellecher/ipmonitorapp/internal/model"
 	"github.com/go-ping/ping"
 )
 

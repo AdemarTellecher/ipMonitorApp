@@ -8,7 +8,6 @@ import (
 
 	"github.com/AdemarTellecher/ipmonitorapp/internal/controller"
 	"github.com/AdemarTellecher/ipmonitorapp/internal/model"
-
 	"github.com/AdemarTellecher/ipmonitorapp/internal/view"
 
 	"fyne.io/fyne/v2"

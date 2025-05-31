@@ -2,6 +2,7 @@
 
 APP_NAME=ipMonitorApp
 SRC=cmd/main.go
+ICON=internal/assets/icons/ip-monitor-icon.jpg
 
 .PHONY: all linux macos android ios clean
 
@@ -14,10 +15,10 @@ macos:
 	GOOS=darwin GOARCH=amd64 go build -o $(APP_NAME)-macos $(SRC)
 
 android:
-	fyne package -os android -icon Icon.png -name "$(APP_NAME)" -appID com.example.$(APP_NAME)
+	fyne package -os android -icon $(ICON) -name "$(APP_NAME)" -appID com.example.$(APP_NAME)
 
 ios:
-	fyne package -os ios -icon Icon.png -name "$(APP_NAME)" -appID com.example.$(APP_NAME)
+	fyne package -os ios -icon $(ICON) -name "$(APP_NAME)" -appID com.example.$(APP_NAME)
 
 clean:
-	rm -f $(APP_NAME)-linux $(APP_NAME)-macos
+	rm -f $(APP_NAME)-linux $(APP_NAME)-macos $(APP_NAME)-win.exe

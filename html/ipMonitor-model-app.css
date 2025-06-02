@@ -27,10 +27,10 @@ body {
     min-height: 100vh; /* Garantir que o corpo ocupe a altura total da viewport */
     box-sizing: border-box; /* Incluir preenchimento e borda no cálculo da largura/altura */
     overflow: hidden; /* Prevenir rolagem da página inteira */
-    font-size: 14px; /* Tamanho de fonte padrão */
+    font-size: 16px; /* Tamanho de fonte padrão */
 }
 
-.pc-manager-window {
+.app-container {
     width: 780px;
     height: 600px; /* Altura fixa para visualização tipo desktop */
     background-color: var(--bg-main-content);

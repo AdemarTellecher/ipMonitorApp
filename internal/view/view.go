@@ -68,21 +68,30 @@ func NewMainView(app fyne.App, refreshList func(), updateStatus func(), addIP fu
 	)
 	actionCardBox := widget.NewCard("", "", container.NewPadded(actionCard))
 
-	ipList := widget.NewList(
-		func() int { return 0 },
+	// --- NOVA LISTA DE IPs COMO TABELA ---
+	ipTable := widget.NewTable(
+		func() (int, int) { return 0, 3 }, // linhas, colunas
 		func() fyne.CanvasObject {
-			ip := widget.NewLabel("")
-			status := canvas.NewCircle(color.RGBA{180, 180, 180, 255})
-			status.Resize(fyne.NewSize(14, 14))
-			return container.NewHBox(ip, layout.NewSpacer(), status)
+			return container.NewHBox(
+				widget.NewLabel(""), // IP
+				widget.NewLabel(""), // Status
+				widget.NewButtonWithIcon("Remover", theme.DeleteIcon(), nil), // Ação
+			)
 		},
-		func(i int, o fyne.CanvasObject) {},
+		func(id widget.TableCellID, o fyne.CanvasObject) {},
 	)
-	ipList.OnSelected = onSelect
+	ipTable.SetColumnWidth(0, 160) // IP
+	ipTable.SetColumnWidth(1, 80)  // Status
+	ipTable.SetColumnWidth(2, 90)  // Ação
+	ipTable.OnSelected = func(id widget.TableCellID) {
+		if id.Row > 0 {
+			onSelect(id.Row - 1)
+		}
+	}
 
 	ipCard := container.NewVBox(
 		widget.NewLabelWithStyle("IPs Monitorados", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
-		ipList,
+		ipTable,
 	)
 	ipCardBox := widget.NewCard("", "", container.NewPadded(ipCard))
 
@@ -112,7 +121,7 @@ func NewMainView(app fyne.App, refreshList func(), updateStatus func(), addIP fu
 	return &ViewComponents{
 		Window:     w,
 		StatusCard: statusCard,
-		IPList:     ipList,
+		IPList:     nil, // widget.List removido
 		IPEntry:    ipEntry,
 		AddBtn:     addBtn,
 		UpdateBtn:  updateStatusBtn,
@@ -129,3 +138,5 @@ func NewMainView(app fyne.App, refreshList func(), updateStatus func(), addIP fu
 func ShowError(win fyne.Window, msg string) {
 	dialog.NewInformation("Erro", msg, win).Show()
 }
+
+// go install fyne.io/fyne/v2/cmd/fyne@latest

@@ -16,7 +16,11 @@
 .github/
 # Ignorar arquivos de configuração do GoLand
 .idea/
-
+productContext.md
+progress.md
+projectbrief.md
+systemPatterns.md
+techContext.md
 # Ignorar arquivos de log  
 *.log
 

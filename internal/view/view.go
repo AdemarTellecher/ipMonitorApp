@@ -27,6 +27,7 @@ type ViewComponents struct {
 	IPCard     *fyne.Container
 	IPCardBox  fyne.CanvasObject
 	StatusBox  fyne.CanvasObject
+	IPTable    *widget.Table
 }
 
 // NewMainView monta e retorna todos os componentes da interface
@@ -70,33 +71,36 @@ func NewMainView(app fyne.App, refreshList func(), updateStatus func(), addIP fu
 
 	// --- NOVA LISTA DE IPs COMO TABELA ---
 	ipTable := widget.NewTable(
-		func() (int, int) { return 0, 3 }, // linhas, colunas
+		func() (int, int) { return 0, 2 }, // linhas, colunas (IP, Status)
 		func() fyne.CanvasObject {
-			return container.NewHBox(
+			// Usa GridLayout com 2 colunas para distribuir espaço corretamente
+			return container.New(
+				layout.NewGridLayoutWithColumns(2),
 				widget.NewLabel(""), // IP
 				widget.NewLabel(""), // Status
-				widget.NewButtonWithIcon("Remover", theme.DeleteIcon(), nil), // Ação
 			)
 		},
 		func(id widget.TableCellID, o fyne.CanvasObject) {},
 	)
-	ipTable.SetColumnWidth(0, 160) // IP
-	ipTable.SetColumnWidth(1, 80)  // Status
-	ipTable.SetColumnWidth(2, 90)  // Ação
+	ipTable.SetColumnWidth(0, 220) // IP
+	ipTable.SetColumnWidth(1, 120) // Status
 	ipTable.OnSelected = func(id widget.TableCellID) {
-		if id.Row > 0 {
-			onSelect(id.Row - 1)
-		}
+		onSelect(id.Row)
 	}
+
+	// Envolve a tabela em um scroll com altura definida
+	scrollTable := container.NewScroll(ipTable)
+	scrollTable.SetMinSize(fyne.NewSize(440, 300))
 
 	ipCard := container.NewVBox(
 		widget.NewLabelWithStyle("IPs Monitorados", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
-		ipTable,
+		widget.NewLabelWithStyle("IPs STATUS", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		scrollTable,
 	)
 	ipCardBox := widget.NewCard("", "", container.NewPadded(ipCard))
 
 	// Botão para alternar tema
-	isDark := true
+	isDark := false
 	themeBtn := widget.NewButtonWithIcon("Alternar Tema", theme.ColorPaletteIcon(), func() {
 		isDark = !isDark
 		if isDark {
@@ -131,6 +135,7 @@ func NewMainView(app fyne.App, refreshList func(), updateStatus func(), addIP fu
 		IPCard:     ipCard,
 		IPCardBox:  ipCardBox,
 		StatusBox:  statusCardBox,
+		IPTable:    ipTable,
 	}
 }
 

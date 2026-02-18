@@ -19,6 +19,12 @@ func (CustomDarkTheme) Color(n fyne.ThemeColorName, v fyne.ThemeVariant) color.C
 		return color.RGBA{80, 80, 80, 255}
 	case theme.ColorNameForeground:
 		return color.White
+	case theme.ColorNameInputBackground:
+		return color.RGBA{50, 50, 60, 255}
+	case theme.ColorNamePlaceHolder:
+		return color.RGBA{120, 120, 120, 255}
+	case theme.ColorNameSelection:
+		return color.RGBA{100, 150, 255, 255}
 	}
 	return theme.DefaultTheme().Color(n, v)
 }
@@ -38,6 +44,12 @@ func (CustomLightTheme) Color(n fyne.ThemeColorName, v fyne.ThemeVariant) color.
 		return color.RGBA{200, 200, 200, 255}
 	case theme.ColorNameForeground:
 		return color.Black
+	case theme.ColorNameInputBackground:
+		return color.White
+	case theme.ColorNamePlaceHolder:
+		return color.RGBA{150, 150, 150, 255}
+	case theme.ColorNameSelection:
+		return color.RGBA{100, 150, 255, 255}
 	}
 	return theme.DefaultTheme().Color(n, v)
 }

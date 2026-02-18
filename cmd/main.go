@@ -47,14 +47,17 @@ func main() {
 	ui := view.NewMainView(myApp, func() { updateStatus() }, func() { updateStatus() }, func() { addIP() }, func() { removeIP() }, func(id int) { onSelect(id) })
 
 	// Referência à tabela
-	ipTable := ui.IPCard.Objects[1].(*widget.Table)
+	ipTable := ui.IPTable
+
+	// Desabilita o botão Remover inicialmente
+	ui.RemoveBtn.Disable()
 
 	refreshTable = func() {
 		ips, _ := ctrl.ListIPs()
 		tableData = make([][]string, len(ips))
 		total, on, off := 0, 0, 0
 		for i, d := range ips {
-			tableData[i] = []string{d.IP, d.Status, "Remover"}
+			tableData[i] = []string{d.IP, d.Status}
 			total++
 			if d.Status == "Online" {
 				on++
@@ -65,26 +68,24 @@ func main() {
 		ui.StatusCard.Objects[2].(*widget.Label).SetText("Total de IPs: " + itoa(total))
 		ui.StatusCard.Objects[3].(*widget.Label).SetText("Online: " + itoa(on))
 		ui.StatusCard.Objects[4].(*widget.Label).SetText("Offline: " + itoa(off))
-		ipTable.Length = func() (int, int) { return len(tableData), 3 }
+		ipTable.Length = func() (int, int) { return len(tableData), 2 }
 		ipTable.UpdateCell = func(id widget.TableCellID, o fyne.CanvasObject) {
 			if id.Row < len(tableData) {
 				row := tableData[id.Row]
+				container := o.(*fyne.Container)
 				if id.Col == 0 {
-					label := o.(*fyne.Container).Objects[0].(*widget.Label)
+					label := container.Objects[0].(*widget.Label)
 					label.SetText(row[0])
 				} else if id.Col == 1 {
-					label := o.(*fyne.Container).Objects[1].(*widget.Label)
+					label := container.Objects[1].(*widget.Label)
 					label.SetText(row[1])
-				} else if id.Col == 2 {
-					btn := o.(*fyne.Container).Objects[2].(*widget.Button)
-					btn.OnTapped = func() {
-						_ = ctrl.RemoveIP(row[0])
-						refreshTable()
-					}
 				}
 			}
 		}
 		ipTable.Refresh()
+		// Reseta seleção e desabilita botão ao atualizar tabela
+		selectedIndex = -1
+		ui.RemoveBtn.Disable()
 	}
 
 	updateStatus = func() {
@@ -123,6 +124,8 @@ func main() {
 
 	onSelect = func(id int) {
 		selectedIndex = id
+		// Habilita o botão quando um item é selecionado
+		ui.RemoveBtn.Enable()
 	}
 
 	refreshTable()

@@ -18,23 +18,19 @@ Aplicativo moderno, ultra-leve e portátil em Go para monitoramento de IPs e con
 
 ## Compilação e Build
 
-### Windows (`make.bat`)
-Para compilar o aplicativo no Windows em modo de produção (sem janela de terminal aberta e com símbolos otimizados):
+O projeto utiliza um **Makefile unificado** que detecta automaticamente o sistema operacional da máquina (Windows, Linux ou macOS) e ajusta as flags de compilação, o nome do executável e as ferramentas necessárias:
 
-```bat
-make.bat
-```
-
-Isso gerará o executável único `ipMonitorApp.exe` na raiz do projeto.
-
-### Makefile
-Alternativamente, se tiver o `make` instalado:
 ```sh
-make build   # Compila o executável ipMonitorApp.exe
+make build   # Detecta o SO e compila o binário único e portátil
 make test    # Executa a suíte de testes unitários
-make run     # Compila e executa o app
+make run     # Compila e executa o aplicativo
 make clean   # Remove o executável gerado
+make info    # Exibe o sistema operacional detectado e configurações de build
 ```
+
+> **No Windows**: Se você usa o MinGW-w64 (WinLibs), você pode executar diretamente `mingw32-make` ou `make`. O Makefile já configura automaticamente os caminhos do GCC e as variáveis `CGO_ENABLED=1` e flags para ocultar o console (`-H=windowsgui`).
+>
+> **No Linux/macOS**: O executável é gerado como `ipMonitorApp` e sem terminal acoplado extra.
 
 ## Como usar
 

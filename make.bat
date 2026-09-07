@@ -7,6 +7,9 @@ set ICON=internal/assets/icons/ip-monitor-icon.jpg
 REM Compila o executável principal
 REM O build padrão do Go não gera as DLLs do Fyne, apenas o binário
 
+set "PATH=%LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin;%PATH%"
+set CGO_ENABLED=1
+
 echo Compilando para Windows...
 go build -ldflags="-H=windowsgui" -o %APP_NAME%.exe %SRC%
 if %ERRORLEVEL%==0 (

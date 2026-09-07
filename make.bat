@@ -20,7 +20,7 @@ if %ERRORLEVEL%==0 (
     if exist %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\dwrite.dll copy %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\dwrite.dll .
     if exist %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\libpng16-16.dll copy %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\libpng16-16.dll .
     if exist %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\zlib1.dll copy %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\zlib1.dll .
-    echo (Se necessário, copie manualmente as DLLs do Fyne para a pasta do executável)
+    echo Se necessario, copie manualmente as DLLs do Fyne para a pasta do executavel
 ) else (
     echo Erro na compilacao!
 )

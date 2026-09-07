@@ -12,6 +12,19 @@ type IPDevice struct {
 	Status string
 }
 
+type SiteItem struct {
+	Name        string `json:"name"`
+	Enabled     bool   `json:"enabled"`
+	ID          string `json:"id"`
+	URL         string `json:"url"`
+	Method      string `json:"method"`
+	ThresholdMs int    `json:"thresholdMs"`
+}
+
+type SitesConfig struct {
+	Sites []SiteItem `json:"sites"`
+}
+
 type IPRepository struct {
 	DB *sql.DB
 }
@@ -35,6 +48,37 @@ func NewRepository(dbFile string) (*IPRepository, error) {
 func (repo *IPRepository) Add(ip string) error {
 	_, err := repo.DB.Exec("INSERT OR IGNORE INTO ips(ip, status) VALUES (?, ?)", ip, "Desconhecido")
 	return err
+}
+
+func (repo *IPRepository) AddMultiple(ips []string) (int, error) {
+	tx, err := repo.DB.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.Prepare("INSERT OR IGNORE INTO ips(ip, status) VALUES (?, ?)")
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	insertedCount := 0
+	for _, ip := range ips {
+		res, err := stmt.Exec(ip, "Desconhecido")
+		if err != nil {
+			return insertedCount, err
+		}
+		rowsAffected, _ := res.RowsAffected()
+		if rowsAffected > 0 {
+			insertedCount++
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return insertedCount, nil
 }
 
 func (repo *IPRepository) Remove(ip string) error {

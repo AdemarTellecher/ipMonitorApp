@@ -5,13 +5,17 @@ import (
 	"log"
 	"time"
 
+	"image/color"
+
 	"github.com/AdemarTellecher/ipmonitorapp/internal/controller"
 	"github.com/AdemarTellecher/ipmonitorapp/internal/model"
 	"github.com/AdemarTellecher/ipmonitorapp/internal/view"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -26,14 +30,7 @@ func main() {
 	ctrl := controller.NewIPController(repo)
 
 	myApp := app.New()
-
-	// Escolha de tema: dark ou light
-	isDark := true // Altere para false para tema claro
-	if isDark {
-		myApp.Settings().SetTheme(theme.DarkTheme())
-	} else {
-		myApp.Settings().SetTheme(theme.LightTheme())
-	}
+	myApp.Settings().SetTheme(view.CustomDarkTheme{})
 
 	var tableData [][]string
 	selectedIndex := -1
@@ -42,9 +39,10 @@ func main() {
 	updateStatus := func() {}
 	addIP := func() {}
 	removeIP := func() {}
+	importJSON := func() {}
 	onSelect := func(id int) {}
 
-	ui := view.NewMainView(myApp, func() { updateStatus() }, func() { updateStatus() }, func() { addIP() }, func() { removeIP() }, func(id int) { onSelect(id) })
+	ui := view.NewMainView(myApp, func() { updateStatus() }, func() { updateStatus() }, func() { addIP() }, func() { removeIP() }, func() { importJSON() }, func(id int) { onSelect(id) })
 
 	// Referência à tabela
 	ipTable := ui.IPTable
@@ -65,21 +63,42 @@ func main() {
 				off++
 			}
 		}
-		ui.StatusCard.Objects[2].(*widget.Label).SetText("Total de IPs: " + itoa(total))
-		ui.StatusCard.Objects[3].(*widget.Label).SetText("Online: " + itoa(on))
-		ui.StatusCard.Objects[4].(*widget.Label).SetText("Offline: " + itoa(off))
+
+		// Atualiza labels de estatísticas nos novos Cards
+		ui.TotalValLabel.SetText(itoa(total))
+		ui.OnlineValLabel.SetText(itoa(on))
+		ui.OfflineValLabel.SetText(itoa(off))
+
 		ipTable.Length = func() (int, int) { return len(tableData), 2 }
 		ipTable.UpdateCell = func(id widget.TableCellID, o fyne.CanvasObject) {
 			if id.Row < len(tableData) {
 				row := tableData[id.Row]
-				container := o.(*fyne.Container)
+				cellContainer := o.(*fyne.Container)
+				bg := cellContainer.Objects[0].(*canvas.Rectangle)
+				padded := cellContainer.Objects[1].(*fyne.Container)
+				label := padded.Objects[0].(*widget.Label)
+
 				if id.Col == 0 {
-					label := container.Objects[0].(*widget.Label)
 					label.SetText(row[0])
+					label.Alignment = fyne.TextAlignLeading
+					bg.FillColor = color.Transparent
 				} else if id.Col == 1 {
-					label := container.Objects[1].(*widget.Label)
-					label.SetText(row[1])
+					status := row[1]
+					if status == "Online" {
+						label.SetText("● Online")
+						label.Alignment = fyne.TextAlignCenter
+						bg.FillColor = color.RGBA{16, 185, 129, 35} // badge verde sutil
+					} else if status == "Offline" {
+						label.SetText("✕ Offline")
+						label.Alignment = fyne.TextAlignCenter
+						bg.FillColor = color.RGBA{239, 68, 68, 35} // badge vermelho sutil
+					} else {
+						label.SetText("? " + status)
+						label.Alignment = fyne.TextAlignCenter
+						bg.FillColor = color.Transparent
+					}
 				}
+				cellContainer.Refresh()
 			}
 		}
 		ipTable.Refresh()
@@ -120,6 +139,34 @@ func main() {
 			refreshTable()
 			selectedIndex = -1
 		}
+	}
+
+	importJSON = func() {
+		fd := dialog.NewFileOpen(func(reader fyne.URIReadCloser, err error) {
+			if err != nil {
+				dialog.ShowError(err, ui.Window)
+				return
+			}
+			if reader == nil {
+				return
+			}
+			defer reader.Close()
+
+			count, err := ctrl.ImportFromJSON(reader)
+			if err != nil {
+				dialog.ShowError(err, ui.Window)
+				return
+			}
+
+			refreshTable()
+			msg := fmt.Sprintf("%d novo(s) IP(s) importado(s) com sucesso!", count)
+			if count == 0 {
+				msg = "Nenhum novo IP para importar (todos os IPs do arquivo já existiam no banco)."
+			}
+			dialog.ShowInformation("Importação Concluída", msg, ui.Window)
+		}, ui.Window)
+		fd.SetFilter(storage.NewExtensionFileFilter([]string{".json"}))
+		fd.Show()
 	}
 
 	onSelect = func(id int) {

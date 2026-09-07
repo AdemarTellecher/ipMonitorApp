@@ -1,8 +1,12 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/AdemarTellecher/ipmonitorapp/internal/model"
@@ -18,10 +22,72 @@ func NewIPController(repo *model.IPRepository) *IPController {
 }
 
 func (c *IPController) AddIP(ip string) error {
-	if net.ParseIP(ip) == nil {
+	cleaned := cleanHostOrIP(ip)
+	if net.ParseIP(cleaned) == nil {
 		return fmt.Errorf("IP inválido: %s", ip)
 	}
-	return c.Repo.Add(ip)
+	return c.Repo.Add(cleaned)
+}
+
+func cleanHostOrIP(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if strings.HasPrefix(raw, "http://") || strings.HasPrefix(raw, "https://") {
+		u, err := url.Parse(raw)
+		if err == nil {
+			raw = u.Hostname()
+		}
+	} else {
+		// Se contiver porta ou caminho
+		if strings.Contains(raw, "/") {
+			parts := strings.Split(raw, "/")
+			raw = parts[0]
+		}
+		if strings.Contains(raw, ":") {
+			host, _, err := net.SplitHostPort(raw)
+			if err == nil {
+				raw = host
+			}
+		}
+	}
+	return strings.TrimSpace(raw)
+}
+
+// ImportFromJSON lê a estrutura JSON com lista de sites e insere no banco
+func (c *IPController) ImportFromJSON(reader io.Reader) (int, error) {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return 0, fmt.Errorf("erro ao ler arquivo: %w", err)
+	}
+
+	var config model.SitesConfig
+	if err := json.Unmarshal(data, &config); err != nil {
+		return 0, fmt.Errorf("formato JSON inválido: %w", err)
+	}
+
+	if len(config.Sites) == 0 {
+		return 0, fmt.Errorf("nenhum site encontrado no arquivo JSON")
+	}
+
+	var validIPs []string
+	seen := make(map[string]bool)
+
+	for _, site := range config.Sites {
+		cleaned := cleanHostOrIP(site.URL)
+		if cleaned == "" || seen[cleaned] {
+			continue
+		}
+		// Verifica se é IP válido ou hostname
+		if net.ParseIP(cleaned) != nil {
+			validIPs = append(validIPs, cleaned)
+			seen[cleaned] = true
+		}
+	}
+
+	if len(validIPs) == 0 {
+		return 0, fmt.Errorf("nenhum endereço IP válido encontrado para importar")
+	}
+
+	return c.Repo.AddMultiple(validIPs)
 }
 
 func (c *IPController) RemoveIP(ip string) error {

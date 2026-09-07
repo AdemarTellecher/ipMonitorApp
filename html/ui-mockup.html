@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparação Lado a Lado - IP Monitor App</title>
+    <link rel="stylesheet" href="ui-mockup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body class="comparison-mode">
+    <div class="comparison-page-header">
+        <h1>Comparativo de Evolução da Interface</h1>
+        <p>Veja lado a lado a versão anterior direta do Fyne e a nova versão refinada com hierarquia visual moderna.</p>
+    </div>
+
+    <div class="comparison-container">
+
+        <!-- ========================================== -->
+        <!-- COLUNA DA ESQUERDA: VERSÃO ANTERIOR (FYNE) -->
+        <!-- ========================================== -->
+        <div class="comparison-column">
+            <div class="comparison-badge badge-before">
+                <span>✕ VERSÃO ANTERIOR (PESADA / DESBALANCEADA)</span>
+            </div>
+
+            <div class="window-frame frame-before">
+                <!-- Header antigo -->
+                <header class="app-header-old">
+                    <div class="app-branding-old">
+                        <span class="old-icon">💻</span>
+                        <div>
+                            <div class="old-title">IP Monitor</div>
+                            <div class="old-subtitle">v2.0 • Live Ping</div>
+                        </div>
+                    </div>
+                    <button class="old-theme-btn">
+                        <span>🎨 Tema</span>
+                    </button>
+                </header>
+
+                <main class="app-content">
+                    <!-- Cards antigos (escuros/pesados) -->
+                    <div class="old-metrics-grid">
+                        <div class="old-metric-card old-metric-total">
+                            <span class="old-metric-label">TOTAL</span>
+                            <span class="old-metric-value">10</span>
+                        </div>
+                        <div class="old-metric-card old-metric-online">
+                            <span class="old-metric-label">ONLINE</span>
+                            <span class="old-metric-value">9</span>
+                        </div>
+                        <div class="old-metric-card old-metric-offline">
+                            <span class="old-metric-label">OFFLINE</span>
+                            <span class="old-metric-value">1</span>
+                        </div>
+                    </div>
+
+                    <!-- Ações antigas (botões todos azuis) -->
+                    <div class="old-actions-box">
+                        <div class="old-section-label">AÇÕES RÁPIDAS</div>
+                        <div class="old-input-row">
+                            <input type="text" class="old-input" placeholder="Digite o IP (ex: 192.168.1.1)">
+                            <button class="old-btn-blue">➕ Adicionar</button>
+                        </div>
+                        <div class="old-toolbar-row">
+                            <button class="old-btn-blue">🔄 Atualizar Todos</button>
+                            <button class="old-btn-blue">📁 Importar JSON</button>
+                            <button class="old-btn-disabled" disabled>🗑️ Remover</button>
+                        </div>
+                    </div>
+
+                    <!-- Tabela antiga (linhas altas e blocos retangulares pesados) -->
+                    <div class="old-hosts-box">
+                        <div class="old-section-label">HOSTS MONITORADOS</div>
+                        <div class="old-table-header">
+                            <div>ENDEREÇO IP / HOST</div>
+                            <div>ESTADO</div>
+                        </div>
+                        <div class="old-table-body">
+                            <div class="old-table-row">
+                                <div class="old-col-ip">168.195.153.214</div>
+                                <div class="old-col-status"><div class="old-block-online">● Online</div></div>
+                            </div>
+                            <div class="old-table-row selected-old">
+                                <div class="old-col-ip">168.195.153.215</div>
+                                <div class="old-col-status"><div class="old-block-online">● Online</div></div>
+                            </div>
+                            <div class="old-table-row">
+                                <div class="old-col-ip">168.195.153.216</div>
+                                <div class="old-col-status"><div class="old-block-online">● Online</div></div>
+                            </div>
+                            <div class="old-table-row">
+                                <div class="old-col-ip">168.195.153.217</div>
+                                <div class="old-col-status"><div class="old-block-online">● Online</div></div>
+                            </div>
+                            <div class="old-table-row">
+                                <div class="old-col-ip">168.195.153.218</div>
+                                <div class="old-col-status"><div class="old-block-online">● Online</div></div>
+                            </div>
+                            <div class="old-table-row">
+                                <div class="old-col-ip">168.195.153.219</div>
+                                <div class="old-col-status"><div class="old-block-online">● Online</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                <footer class="app-footer">
+                    <span>● Monitoramento automático ativo (1m)</span>
+                    <span>SQLite OK</span>
+                </footer>
+            </div>
+
+            <div class="critique-list">
+                <h4>Pontos Críticos Corrigidos:</h4>
+                <ul>
+                    <li>Botão "Tema" gigante azul brigando pelo foco da tela.</li>
+                    <li>Cards de métricas muito escuros, sem leitura instantânea.</li>
+                    <li>Todos os botões de ação com a mesma cor azul saturada.</li>
+                    <li>Status ocupando a célula como um tijolo retangular espesso.</li>
+                    <li>Linhas muito altas, cabendo apenas 6 hosts na tela.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- COLUNA DA DIREITA: NOVA VERSÃO REFINADA    -->
+        <!-- ========================================== -->
+        <div class="comparison-column">
+            <div class="comparison-badge badge-after">
+                <span>✓ NOVA VERSÃO REFINADA (HIERARQUIA & LEVEZA)</span>
+            </div>
+
+            <div class="window-frame frame-after">
+                <!-- Header refinado -->
+                <header class="app-header">
+                    <div class="app-branding">
+                        <div class="brand-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="app-title">IP Monitor</h1>
+                            <span class="app-badge">v2.0 • Live Ping</span>
+                        </div>
+                    </div>
+
+                    <button class="theme-toggle-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        <span>Tema</span>
+                    </button>
+                </header>
+
+                <main class="app-content">
+                    <!-- Cards refinados -->
+                    <section class="metrics-grid">
+                        <div class="metric-card total">
+                            <div class="metric-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">TOTAL</span>
+                                <span class="metric-value">10</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card online">
+                            <div class="metric-icon">
+                                <span class="status-pulse-green"></span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">ONLINE</span>
+                                <span class="metric-value text-green">9</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card offline">
+                            <div class="metric-icon">
+                                <span class="status-pulse-red"></span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">OFFLINE</span>
+                                <span class="metric-value text-red">1</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Ações refinadas -->
+                    <section class="card-section actions-panel">
+                        <div class="section-title">
+                            <span>AÇÕES RÁPIDAS</span>
+                        </div>
+                        <div class="input-action-bar">
+                            <div class="input-wrapper">
+                                <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" placeholder="Digite o IP (ex: 192.168.1.1)" class="ip-input">
+                            </div>
+                            <button class="btn btn-primary">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Adicionar
+                            </button>
+                        </div>
+                        <div class="action-buttons-toolbar">
+                            <button class="btn btn-secondary">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                Atualizar Todos
+                            </button>
+                            <button class="btn btn-outline">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Importar JSON
+                            </button>
+                            <button class="btn btn-danger-subtle" disabled>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                Remover
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Tabela refinada (compacta, fonte monospace clara, badges estilo pílula) -->
+                    <section class="card-section hosts-panel">
+                        <div class="section-title">
+                            <span>HOSTS MONITORADOS</span>
+                        </div>
+                        <div class="custom-table-header">
+                            <div class="col-ip">ENDEREÇO IP / HOST</div>
+                            <div class="col-status">ESTADO</div>
+                            <div class="col-indicator">SINAL</div>
+                        </div>
+                        <div class="custom-table-body">
+                            <div class="table-row">
+                                <div class="col-ip font-mono">168.195.153.214</div>
+                                <div class="col-status"><span class="badge badge-online"><span class="dot dot-online"></span> Online</span></div>
+                                <div class="col-indicator"><span class="latency-good">OK</span></div>
+                            </div>
+                            <div class="table-row selected">
+                                <div class="col-ip font-mono">168.195.153.215</div>
+                                <div class="col-status"><span class="badge badge-online"><span class="dot dot-online"></span> Online</span></div>
+                                <div class="col-indicator"><span class="latency-good">OK</span></div>
+                            </div>
+                            <div class="table-row">
+                                <div class="col-ip font-mono">168.195.153.216</div>
+                                <div class="col-status"><span class="badge badge-online"><span class="dot dot-online"></span> Online</span></div>
+                                <div class="col-indicator"><span class="latency-good">OK</span></div>
+                            </div>
+                            <div class="table-row">
+                                <div class="col-ip font-mono">168.195.153.217</div>
+                                <div class="col-status"><span class="badge badge-offline"><span class="dot dot-offline"></span> Offline</span></div>
+                                <div class="col-indicator"><span class="latency-down">FALHA</span></div>
+                            </div>
+                            <div class="table-row">
+                                <div class="col-ip font-mono">168.195.153.218</div>
+                                <div class="col-status"><span class="badge badge-online"><span class="dot dot-online"></span> Online</span></div>
+                                <div class="col-indicator"><span class="latency-good">OK</span></div>
+                            </div>
+                            <div class="table-row">
+                                <div class="col-ip font-mono">168.195.153.219</div>
+                                <div class="col-status"><span class="badge badge-online"><span class="dot dot-online"></span> Online</span></div>
+                                <div class="col-indicator"><span class="latency-good">OK</span></div>
+                            </div>
+                            <div class="table-row">
+                                <div class="col-ip font-mono">168.195.155.207</div>
+                                <div class="col-status"><span class="badge badge-online"><span class="dot dot-online"></span> Online</span></div>
+                                <div class="col-indicator"><span class="latency-good">OK</span></div>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+
+                <footer class="app-footer">
+                    <div class="footer-status">
+                        <span class="ping-rate-dot"></span>
+                        <span>Varredura automática ativa (1m)</span>
+                    </div>
+                    <span>SQLite conectado</span>
+                </footer>
+            </div>
+
+            <div class="critique-list highlight-list">
+                <h4>Vantagens da Nova Apresentação:</h4>
+                <ul>
+                    <li>Botão de tema compacto e sutil (estilo pílula).</li>
+                    <li>Cores indicativas claras e números com destaque nos cards.</li>
+                    <li>Hierarquia nos botões (Adicionar em azul, outros em cinza/outline).</li>
+                    <li>Badges com bordas e pontos luminosos (verde esmeralda / vermelho).</li>
+                    <li>Linhas compactas: mais de 8 a 10 hosts visíveis simultaneamente.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

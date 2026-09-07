@@ -1,163 +1,58 @@
 # IP Monitor App
 
-<p align="center">
-  <img src="assets/screenshot-dark.png" alt="IP Monitor App - Tema Escuro" width="350"/>
-  <img src="assets/screenshot-light.png" alt="IP Monitor App - Tema Claro" width="350"/>
-</p>
-
-Aplicativo multiplataforma em Go para monitoramento de IPs (online/offline) com interface gráfica (Fyne) e persistência local em SQLite3.
-Este é um projeto funcional, prem simples, tendo como objetivo o estudo da linguagem ```"Golang"``` e a biblioteca cross-plataforma [fyne.io](https://fyne.io)
+Aplicativo moderno, ultra-leve e portátil em Go para monitoramento de IPs e conectividade com interface nativa [Wails v3](https://v3.wails.io) e persistência local em SQLite3.
 
 ## Funcionalidades
-- Cadastro de IPs para monitoramento
-- Listagem dinâmica dos IPs monitorados
-- Remoção de IPs
-- Atualização do status (online/offline) manual
-- Interface gráfica moderna baseada em cartões/seções
-- Persistência automática em banco SQLite3 local
-- Validação de IP na inclusão
+- **Executável Único e Portátil**: Frontend e backend 100% integrados em um binário autocontido (`ipMonitorApp.exe` de ~13 MB).
+- **Zero DLLs ou Pastas Externas**: Funciona sobre o WebView2 nativo do Windows, sem necessidade de DLLs soltas na pasta.
+- **SQLite Dinâmico**: Detecta automaticamente a pasta de execução e cria/utiliza o banco `ipmonitor.db` localmente.
+- **Importação de JSON**: Importação em lote a partir de arquivos `.json` exportados, com validação e sanitização automática de hosts/URLs.
+- **Varredura Ativa e Periódica**: Monitoramento com ICMP Ping em tempo real e atualização periódica em background.
+- **Temas Modernos**: Alternância instantânea entre Tema Escuro e Tema Claro com alto contraste.
+- **Ações Rápidas**: Adicionar, Atualizar Todos, Importar JSON e Remover hosts selecionados.
 
 ## Requisitos
-- Go 1.18 ou superior (recomendado Go 1.20+)
-- Git (opcional, para clonar o repositório)
-- Sistema operacional: Windows, Linux ou macOS
+- Go 1.25 ou superior
+- Compilador C (GCC / MinGW-w64) no Windows (necessário para compilar o driver CGO do SQLite)
+- WebView2 Runtime (nativo no Windows 10 e Windows 11)
 
-## Instalação
+## Compilação e Build
 
-1. **Clone o repositório (opcional):**
-   ```sh
-   git clone <url-do-repositorio>
-   cd ipMonitorApp
-   ```
+### Windows (`make.bat`)
+Para compilar o aplicativo no Windows em modo de produção (sem janela de terminal aberta e com símbolos otimizados):
 
-2. **Baixe as dependências:**
-   ```sh
-   go mod tidy
-   ```
+```bat
+make.bat
+```
 
-3. **Compile e execute:**
-   ```sh
-   go run main.go
-   ```
-   Ou para gerar o executável:
-   ```sh
-   go build -o ipmonitorapp.exe main.go
-   ./ipmonitorapp.exe
-   ```
-   (No Linux/macOS, use `./ipmonitorapp`)
+Isso gerará o executável único `ipMonitorApp.exe` na raiz do projeto.
 
-## Executando sem abrir o terminal (Windows)
-
-Para que o aplicativo rode apenas com a interface gráfica, sem abrir o terminal cmd junto:
-
-1. Compile usando o comando abaixo:
-   ```sh
-   go build -ldflags="-H=windowsgui" -o ipMonitor-gui.exe main.go
-   ```
-2. Execute o arquivo `ipMonitor-gui.exe` normalmente. Apenas a janela gráfica será exibida.
-
-Se desejar rodar pelo terminal (para ver logs), use o comando padrão:
+### Makefile
+Alternativamente, se tiver o `make` instalado:
 ```sh
-   go run main.go
+make build   # Compila o executável ipMonitorApp.exe
+make test    # Executa a suíte de testes unitários
+make run     # Compila e executa o app
+make clean   # Remove o executável gerado
 ```
 
 ## Como usar
 
 1. **Adicionar IP:**
-   - Digite o endereço IP no campo "Digite o IP a ser monitorado".
-   - Clique em "Adicionar IP".
-   - Apenas IPs válidos são aceitos.
+   - Digite o endereço IP no campo e clique em "Adicionar" (ou pressione Enter).
+2. **Atualizar Status:**
+   - Clique em "Atualizar Todos" para disparar uma nova verificação via ICMP Ping.
+3. **Importar JSON:**
+   - Clique em "Importar JSON" e selecione o arquivo `.json` desejado.
+4. **Remover IP:**
+   - Clique em uma linha da tabela para selecionar o host e clique em "Remover".
+5. **Alternar Tema:**
+   - Clique no botão no canto superior direito para alternar entre os temas Claro e Escuro.
 
-2. **Atualizar status:**
-   - Clique em "Atualizar Status" para verificar se os IPs estão online ou offline.
-
-3. **Remover IP:**
-   - Selecione um IP na lista.
-   - Clique em "Remover IP".
-
-4. **Resumo:**
-   - O topo da interface mostra o total de IPs cadastrados e o status geral (online/offline).
-
-## Banco de Dados
-- O arquivo `ipmonitor.db` é criado automaticamente na primeira execução, no mesmo diretório do aplicativo.
-- Não é necessário configurar nada manualmente.
-
-## Observações
-- O status "Online" é determinado por uma tentativa de conexão TCP na porta 80 do IP.
-- O app não faz atualização automática em background (apenas manual).
-- O app aceita tanto IPv4 quanto IPv6 válidos.
-
-## Personalização e Extensão
-- O código segue o padrão MVC (Model-View-Controller) para facilitar manutenção e evolução.
-- Para internacionalização, melhorias visuais ou automação, contribua ou solicite via issues.
-
-## Suporte
-- Dúvidas, sugestões ou bugs: abra uma issue no repositório ou entre em contato com o desenvolvedor.
-
-## Build multiplataforma (Makefile e make.bat)
-
-### Windows
-Para compilar o app no Windows, utilize o script:
-```bat
-make.bat
-```
-Isso irá gerar o executável `ipMonitorApp-win.exe` na raiz do projeto.
-
-### Linux/macOS
-No terminal:
-```sh
-make linux     # Gera ipMonitorApp-linux
-make macos     # Gera ipMonitorApp-macos
-make all       # Gera para todas as plataformas (exceto Windows)
-make clean     # Remove os binários gerados
-```
-
-Os binários gerados ficam na raiz do projeto.
-
-## Como executar o Makefile no Windows
-
-1. Instale o Make para Windows:
-   - Via Chocolatey:
-     ```sh
-     choco install make
-     ```
-   - Ou via Scoop:
-     ```sh
-     scoop install make
-     ```
-   - Ou baixe manualmente em: https://gnuwin32.sourceforge.net/packages/make.htm
-   
-   - Instale a extensão [Makefile Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.makefile-tools)
-
-2. Feche e reabra o terminal após a instalação (para garantir que o comando make esteja no PATH).
-
-3. Navegue até a pasta do projeto e execute:
-   ```sh
-   make windows
-   ```
-   Ou qualquer outro comando do Makefile conforme desejado.
-
-Se aparecer erro de comando não encontrado, adicione o caminho do make.exe ao PATH do sistema.
-
-## Build para Android e iOS (Fyne)
-
-Para gerar o app para Android e iOS, é necessário:
-- Instalar o [Fyne CLI](https://developer.fyne.io/started/packaging)
-- Ter o ambiente de build configurado (Android SDK/NDK para Android, Xcode para iOS)
-- Ter um ícone chamado `Icon.png` na raiz do projeto
-
-### Android
-```sh
-make android   # Gera o APK na pasta 'fyne-cross/dist' ou na raiz
-```
-
-### iOS
-```sh
-make ios       # Gera o pacote iOS na pasta 'fyne-cross/dist' ou na raiz
-```
-
-Veja a documentação oficial do Fyne para detalhes de publicação e testes em dispositivos reais.
+## Banco de Dados e Portabilidade
+- O arquivo `ipmonitor.db` é resolvido dinamicamente no diretório onde o executável foi iniciado.
+- Você pode mover o `ipMonitorApp.exe` para qualquer pasta ou pendrive; o banco de dados acompanhará a pasta de execução.
 
 ---
 
-Desenvolvido com Go, Fyne e SQLite3.
+Desenvolvido com Go, Wails v3 e SQLite3.

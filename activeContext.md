@@ -1,24 +1,22 @@
 # Contexto Ativo (activeContext.md)
 
 ## Foco Atual
-- Garantir build multiplataforma estável, especialmente para Windows (inclusão das DLLs do Fyne)
-- Melhorar a documentação e estrutura do Banco de Memória
-- Testar portabilidade do binário Windows em ambiente limpo
+- Manter o aplicativo atualizado utilizando o **Wails v3** (Go + Webview2 nativo)
+- Garantir que o binário gerado seja **único, enxuto (~13.6MB) e 100% portátil**
+- Persistência com SQLite dinâmico (`model.ResolveDBPath`) na pasta de execução
 
 ## Decisões Recentes
-- Estrutura reorganizada: código em cmd/, internal/controller, internal/model, internal/view; assets em internal/assets
-- Interface gráfica refatorada: lista de IPs agora em tabela (widget.Table)
-- Makefile e make.bat atualizados para build e cópia automática das DLLs do Fyne
-- Documentação detalhada para build e empacotamento
+- **Migração do Fyne para Wails v3**: Concluída com sucesso. Eliminadas todas as dependências do Fyne e as 5 DLLs externas que eram obrigatórias no Windows.
+- **Estrutura do Projeto**:
+  - `main.go`: Inicialização do Wails v3 e embutimento do frontend via `//go:embed all:frontend`.
+  - `internal/model/`: Persistência SQLite3 com detecção dinâmica do caminho do banco.
+  - `internal/service/`: `MonitorService` com rotas de API HTTP e IPC para o frontend.
+  - `frontend/`: Interface moderna e refinada construída com HTML5, CSS3 e Vanilla JS puro (sem frameworks pesados).
+- **Scripts de Build**: `make.bat` e `Makefile` simplificados para compilação direta via `go build -ldflags="-s -w -H=windowsgui"`.
 
 ## Próximos Passos
-- Validar build Windows em ambiente limpo
-- Ajustar scripts se necessário para garantir portabilidade
-- Avaliar melhorias visuais e funcionais conforme feedback
-
-## Aprendizados e Desafios em Aberto
-- Cópia automática das DLLs do Fyne pode falhar dependendo do ambiente/configuração do Go
-- Importância de documentar claramente o processo de build e distribuição
+- Expandir configurações adicionais conforme necessidade do usuário
+- Suporte a notificações nativas ou ícone na bandeja do sistema (Systray) via Wails v3 se desejado
 
 ---
 

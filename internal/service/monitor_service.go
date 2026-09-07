@@ -173,7 +173,7 @@ func (s *MonitorService) ImportFromReader(reader io.Reader) (int, error) {
 	}
 	res := s.ImportJSONContent(string(data))
 	if !res.Success {
-		return 0, fmt.Errorf(res.Error)
+		return 0, fmt.Errorf("%s", res.Error)
 	}
 	return res.Count, nil
 }

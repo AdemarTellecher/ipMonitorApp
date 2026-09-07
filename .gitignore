@@ -7,6 +7,9 @@
 # Ignorar arquivos de configuração do banco de dados
 *.sqlite
 
+# Ignorar arquivos de exportação/dados locais
+Ping-*.json
+
 # Ignorar dependências e arquivos temporários do Go
 /bin/
 /pkg/

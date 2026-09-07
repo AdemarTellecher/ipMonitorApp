@@ -108,20 +108,49 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
     border: 1px solid var(--border-subtle);
-    color: var(--text-muted);
-    padding: 5px 12px;
+    color: var(--text-main);
+    padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle-btn svg {
+    stroke: currentColor;
 }
 
 .theme-toggle-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.16);
+    border-color: #60a5fa;
+    color: #fff;
+}
+
+/* Ajustes específicos do Header e Botão de Tema no Modo Claro */
+body.light-theme .app-header {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+body.light-theme .theme-toggle-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .theme-toggle-btn:hover {
+    background: #f1f5f9;
+    border-color: #3b82f6;
+    color: #2563eb;
+}
+
+body.light-theme .app-footer {
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
 }
 
 /* Conteúdo */

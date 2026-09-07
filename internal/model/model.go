@@ -2,14 +2,31 @@ package model
 
 import (
 	"database/sql"
+	"os"
+	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// ResolveDBPath determina dinamicamente o caminho do banco de dados SQLite
+// Ele garante que o banco seja criado/usado na pasta onde o executável foi iniciado
+func ResolveDBPath(defaultName string) string {
+	if defaultName == "" {
+		defaultName = "ipmonitor.db"
+	}
+	exePath, err := os.Executable()
+	if err == nil {
+		exeDir := filepath.Dir(exePath)
+		return filepath.Join(exeDir, defaultName)
+	}
+	// Fallback para diretório de trabalho atual
+	return defaultName
+}
+
 type IPDevice struct {
-	ID     int
-	IP     string
-	Status string
+	ID     int    `json:"id"`
+	IP     string `json:"ip"`
+	Status string `json:"status"`
 }
 
 type SiteItem struct {

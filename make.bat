@@ -1,26 +1,22 @@
 @echo off
-REM Build do IP Monitor App para Windows
+REM Build do IP Monitor App (Wails v3 - Executável Único, Leve e Portátil)
 set APP_NAME=ipMonitorApp
-set SRC=cmd/main.go
-set ICON=internal/assets/icons/ip-monitor-icon.jpg
+set SRC=.
 
-REM Compila o executável principal
-REM O build padrão do Go não gera as DLLs do Fyne, apenas o binário
-
-set "PATH=%LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin;%PATH%"
+REM Garante que o GCC (WinLibs MinGW-w64) e o Go bin estejam no PATH
+set "PATH=%LOCALAPPDATA%\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin;%USERPROFILE%\go\bin;%PATH%"
 set CGO_ENABLED=1
 
-echo Compilando para Windows...
-go build -ldflags="-H=windowsgui" -o %APP_NAME%.exe %SRC%
+echo Compilando executavel unico e enxuto (Wails v3 + Assets Embutidos)...
+go build -ldflags="-s -w -H=windowsgui" -o %APP_NAME%.exe %SRC%
 if %ERRORLEVEL%==0 (
-    echo Build concluido: %APP_NAME%.exe
-    REM Copia as DLLs do Fyne (se existirem em uma pasta padrao ou assets)
-    if exist %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\libEGL.dll copy %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\libEGL.dll .
-    if exist %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\libGLESv2.dll copy %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\libGLESv2.dll .
-    if exist %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\dwrite.dll copy %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\dwrite.dll .
-    if exist %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\libpng16-16.dll copy %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\libpng16-16.dll .
-    if exist %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\zlib1.dll copy %USERPROFILE%\go\pkg\mod\fyne.io\fyne\v2@*\internal\driver\windows\dlls\zlib1.dll .
-    echo Se necessario, copie manualmente as DLLs do Fyne para a pasta do executavel
+    echo.
+    echo ========================================================
+    echo Build concluido com sucesso: %APP_NAME%.exe
+    echo - Binario unico e autocontido - Frontend embutido via go:embed
+    echo - Sem DLLs externas ou pastas adicionais necessarias
+    echo - SQLite portatil: cria/usa ipmonitor.db na pasta de execucao
+    echo ========================================================
 ) else (
     echo Erro na compilacao!
 )

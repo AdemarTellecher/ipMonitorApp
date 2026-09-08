@@ -93,17 +93,17 @@ func (s *MonitorService) ListIPs() ([]model.IPDevice, error) {
 	return s.Repo.List()
 }
 
-// AddIP valida e adiciona um novo IP
+// AddIP valida e adiciona um novo IP ou Hostname/URL
 func (s *MonitorService) AddIP(ip string) Result {
 	cleaned := cleanHostOrIP(ip)
-	if net.ParseIP(cleaned) == nil {
-		return Result{Success: false, Error: fmt.Sprintf("IP inválido: %s", ip)}
+	if !isValidHostOrIP(cleaned) {
+		return Result{Success: false, Error: fmt.Sprintf("Endereço IP ou Hostname inválido: %s", ip)}
 	}
 	err := s.Repo.Add(cleaned)
 	if err != nil {
 		return Result{Success: false, Error: err.Error()}
 	}
-	return Result{Success: true, Message: "IP adicionado com sucesso"}
+	return Result{Success: true, Message: "Host adicionado com sucesso"}
 }
 
 // RemoveIP remove o IP informado
@@ -112,7 +112,7 @@ func (s *MonitorService) RemoveIP(ip string) Result {
 	if err != nil {
 		return Result{Success: false, Error: err.Error()}
 	}
-	return Result{Success: true, Message: "IP removido"}
+	return Result{Success: true, Message: "Host removido"}
 }
 
 // UpdateAllStatuses executa o ping em todos os IPs cadastrados e retorna a lista atualizada
@@ -128,7 +128,7 @@ func (s *MonitorService) UpdateAllStatuses() ([]model.IPDevice, error) {
 	return s.Repo.List()
 }
 
-// ImportJSONContent processa o texto JSON recebido do frontend e insere os IPs
+// ImportJSONContent processa o texto JSON recebido do frontend e insere os IPs e Hostnames
 func (s *MonitorService) ImportJSONContent(content string) Result {
 	var rawData interface{}
 	if err := json.Unmarshal([]byte(content), &rawData); err != nil {
@@ -138,32 +138,33 @@ func (s *MonitorService) ImportJSONContent(content string) Result {
 	var candidateStrings []string
 
 	switch v := rawData.(type) {
-	case map[string]interface{}:
-		// 1. Verifica se tem campo "sites" (padrão do app anterior)
-		if sitesRaw, ok := v["sites"]; ok {
-			if sitesList, ok := sitesRaw.([]interface{}); ok {
-				for _, item := range sitesList {
-					if m, ok := item.(map[string]interface{}); ok {
-						if u, ok := m["url"].(string); ok {
-							candidateStrings = append(candidateStrings, u)
-						} else if ip, ok := m["ip"].(string); ok {
-							candidateStrings = append(candidateStrings, ip)
+	case []interface{}:
+		for _, item := range v {
+			if str, ok := item.(string); ok {
+				candidateStrings = append(candidateStrings, str)
+			} else if obj, ok := item.(map[string]interface{}); ok {
+				for _, key := range []string{"ip", "host", "url", "address", "hostname"} {
+					if val, found := obj[key]; found {
+						if strVal, ok := val.(string); ok {
+							candidateStrings = append(candidateStrings, strVal)
+							break
 						}
 					}
 				}
 			}
-		} else {
-			// Outras chaves possíveis como "ips", "hosts", "devices"
-			for _, key := range []string{"ips", "hosts", "devices"} {
-				if listRaw, ok := v[key]; ok {
-					if list, ok := listRaw.([]interface{}); ok {
-						for _, item := range list {
-							if str, ok := item.(string); ok {
-								candidateStrings = append(candidateStrings, str)
-							} else if m, ok := item.(map[string]interface{}); ok {
-								for _, subKey := range []string{"url", "ip", "host", "address"} {
-									if val, ok := m[subKey].(string); ok {
-										candidateStrings = append(candidateStrings, val)
+		}
+	case map[string]interface{}:
+		for _, key := range []string{"ips", "hosts", "sites", "devices", "servers"} {
+			if list, found := v[key]; found {
+				if arr, ok := list.([]interface{}); ok {
+					for _, item := range arr {
+						if str, ok := item.(string); ok {
+							candidateStrings = append(candidateStrings, str)
+						} else if obj, ok := item.(map[string]interface{}); ok {
+							for _, k := range []string{"ip", "host", "url", "address", "hostname"} {
+								if val, found := obj[k]; found {
+									if strVal, ok := val.(string); ok {
+										candidateStrings = append(candidateStrings, strVal)
 										break
 									}
 								}
@@ -173,24 +174,6 @@ func (s *MonitorService) ImportJSONContent(content string) Result {
 				}
 			}
 		}
-	case []interface{}:
-		// Array de strings ou array de objetos
-		for _, item := range v {
-			if str, ok := item.(string); ok {
-				candidateStrings = append(candidateStrings, str)
-			} else if m, ok := item.(map[string]interface{}); ok {
-				for _, subKey := range []string{"url", "ip", "host", "address"} {
-					if val, ok := m[subKey].(string); ok {
-						candidateStrings = append(candidateStrings, val)
-						break
-					}
-				}
-			}
-		}
-	}
-
-	if len(candidateStrings) == 0 {
-		return Result{Success: false, Error: "Nenhum endereço ou site encontrado no arquivo JSON"}
 	}
 
 	var validIPs []string
@@ -201,14 +184,14 @@ func (s *MonitorService) ImportJSONContent(content string) Result {
 		if cleaned == "" || seen[cleaned] {
 			continue
 		}
-		if net.ParseIP(cleaned) != nil {
+		if isValidHostOrIP(cleaned) {
 			validIPs = append(validIPs, cleaned)
 			seen[cleaned] = true
 		}
 	}
 
 	if len(validIPs) == 0 {
-		return Result{Success: false, Error: "Nenhum endereço IP válido encontrado"}
+		return Result{Success: false, Error: "Nenhum endereço IP ou Hostname válido encontrado"}
 	}
 
 	count, err := s.Repo.AddMultiple(validIPs)
@@ -232,11 +215,40 @@ func (s *MonitorService) ImportFromReader(reader io.Reader) (int, error) {
 	return res.Count, nil
 }
 
+func isValidHostOrIP(raw string) bool {
+	if raw == "" || len(raw) > 253 {
+		return false
+	}
+	if net.ParseIP(raw) != nil {
+		return true
+	}
+	if strings.ContainsAny(raw, "/: \t\r\n") {
+		return false
+	}
+	labels := strings.Split(raw, ".")
+	for _, label := range labels {
+		if len(label) == 0 || len(label) > 63 {
+			return false
+		}
+		if label[0] == '-' || label[len(label)-1] == '-' {
+			return false
+		}
+		for i := 0; i < len(label); i++ {
+			c := label[i]
+			isAlphaNum := (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-'
+			if !isAlphaNum {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func cleanHostOrIP(raw string) string {
 	raw = strings.TrimSpace(raw)
 	if strings.HasPrefix(raw, "http://") || strings.HasPrefix(raw, "https://") {
 		u, err := url.Parse(raw)
-		if err == nil {
+		if err == nil && u.Hostname() != "" {
 			raw = u.Hostname()
 		}
 	} else {
@@ -246,29 +258,41 @@ func cleanHostOrIP(raw string) string {
 		}
 		if strings.Contains(raw, ":") {
 			host, _, err := net.SplitHostPort(raw)
-			if err == nil {
+			if err == nil && host != "" {
 				raw = host
 			}
 		}
 	}
-	return strings.TrimSpace(raw)
+	return strings.ToLower(strings.TrimSpace(raw))
 }
 
-func checkIPOnline(ip string) string {
-	pinger, err := ping.NewPinger(ip)
-	if err != nil {
+func checkIPOnline(target string) string {
+	target = strings.TrimSpace(target)
+	if target == "" {
 		return "Offline"
 	}
-	pinger.Count = 1
-	pinger.Timeout = 2 * time.Second
-	pinger.SetPrivileged(true)
-	err = pinger.Run()
-	if err != nil {
-		return "Offline"
+
+	pinger, err := ping.NewPinger(target)
+	if err == nil {
+		pinger.Count = 1
+		pinger.Timeout = 2 * time.Second
+		pinger.SetPrivileged(true)
+		runErr := pinger.Run()
+		if runErr == nil {
+			stats := pinger.Statistics()
+			if stats.PacketsRecv > 0 {
+				return "Online"
+			}
+		}
 	}
-	stats := pinger.Statistics()
-	if stats.PacketsRecv > 0 {
-		return "Online"
+
+	for _, port := range []string{"443", "80"} {
+		conn, dialErr := net.DialTimeout("tcp", net.JoinHostPort(target, port), 1500*time.Millisecond)
+		if dialErr == nil {
+			_ = conn.Close()
+			return "Online"
+		}
 	}
+
 	return "Offline"
 }

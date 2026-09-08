@@ -600,10 +600,46 @@ body.light-theme .metric-column {
 .hosts-table-body {
     flex: 1;
     overflow-y: auto;
-    padding: 4px 0;
+    padding: 4px 6px 4px 0;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+body.light-theme .hosts-table-body {
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Custom WebKit Scrollbar para harmonia visual com o app */
+.hosts-table-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.hosts-table-body::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+.hosts-table-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    transition: background 0.2s ease;
+}
+
+.hosts-table-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(64, 181, 255, 0.45);
+}
+
+body.light-theme .hosts-table-body::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.18);
+}
+
+body.light-theme .hosts-table-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(2, 132, 199, 0.45);
 }
 
 .host-row {

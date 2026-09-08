@@ -14,9 +14,7 @@ const ipInput = document.getElementById('ipInput');
 const addBtn = document.getElementById('addBtn');
 const refreshBtn = document.getElementById('refreshBtn');
 const refreshBtnText = document.getElementById('refreshBtnText');
-const importBtn = document.getElementById('importBtn');
 const fileInput = document.getElementById('fileInput');
-const removeBtn = document.getElementById('removeBtn');
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const toast = document.getElementById('toast');
 
@@ -90,10 +88,9 @@ function renderHosts(ips) {
     updateRemoveButtonsState();
 }
 
-// Atualiza o estado dos botões de remover
+// Atualiza o estado do botão de remover na sidebar
 function updateRemoveButtonsState() {
     const hasSelection = Boolean(selectedIp);
-    removeBtn.disabled = !hasSelection;
     if (hasSelection) {
         navRemove.classList.remove('disabled');
     } else {
@@ -189,7 +186,7 @@ async function handleRemove() {
     const ipToRemove = selectedIp;
 
     try {
-        removeBtn.disabled = true;
+        navRemove.classList.add('disabled');
         const result = await callGo('remove', { ip: ipToRemove });
         if (result && result.error) {
             showToast(result.error);
@@ -256,8 +253,6 @@ ipInput.addEventListener('keydown', (e) => {
 });
 
 refreshBtn.addEventListener('click', handleRefresh);
-removeBtn.addEventListener('click', handleRemove);
-importBtn.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', handleFileSelected);
 themeToggleBtn.addEventListener('click', toggleTheme);
 

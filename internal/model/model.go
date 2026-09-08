@@ -123,6 +123,11 @@ func (repo *IPRepository) UpdateStatus(id int, status string) error {
 	return err
 }
 
+func (repo *IPRepository) UpdateIP(id int, newIP string) error {
+	_, err := repo.DB.Exec("UPDATE ips SET ip=?, status='Desconhecido' WHERE id=?", newIP, id)
+	return err
+}
+
 func (repo *IPRepository) Close() error {
 	return repo.DB.Close()
 }

@@ -66,6 +66,18 @@ func (s *MonitorService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		res := s.RemoveIP(req.IP)
 		_ = json.NewEncoder(w).Encode(res)
 
+	case "edit":
+		var req struct {
+			ID    int    `json:"id"`
+			NewIP string `json:"newIp"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			_ = json.NewEncoder(w).Encode(Result{Success: false, Error: "corpo da requisição inválido"})
+			return
+		}
+		res := s.EditIP(req.ID, req.NewIP)
+		_ = json.NewEncoder(w).Encode(res)
+
 	case "update":
 		updated, err := s.UpdateAllStatuses()
 		if err != nil {
@@ -113,6 +125,23 @@ func (s *MonitorService) RemoveIP(ip string) Result {
 		return Result{Success: false, Error: err.Error()}
 	}
 	return Result{Success: true, Message: "Host removido"}
+}
+
+// EditIP valida, atualiza o host e testa a conectividade imediatamente
+func (s *MonitorService) EditIP(id int, newIP string) Result {
+	cleaned := cleanHostOrIP(newIP)
+	if !isValidHostOrIP(cleaned) {
+		return Result{Success: false, Error: fmt.Sprintf("Endereço IP ou Hostname inválido: %s", newIP)}
+	}
+	err := s.Repo.UpdateIP(id, cleaned)
+	if err != nil {
+		return Result{Success: false, Error: fmt.Sprintf("Erro ao atualizar host: %s", err.Error())}
+	}
+	// Executa checagem imediata de status após salvar
+	status := checkIPOnline(cleaned)
+	_ = s.Repo.UpdateStatus(id, status)
+
+	return Result{Success: true, Message: "Host atualizado com sucesso"}
 }
 
 // UpdateAllStatuses executa o ping em todos os IPs cadastrados e retorna a lista atualizada

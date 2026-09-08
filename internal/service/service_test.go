@@ -119,3 +119,71 @@ func TestMonitorService_AddAndRemove(t *testing.T) {
 		}
 	}
 }
+
+func TestMonitorService_EditIP(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "test.db")
+
+	repo, err := model.NewRepository(dbPath)
+	if err != nil {
+		t.Fatalf("Erro ao criar repo de teste: %v", err)
+	}
+	defer repo.Close()
+
+	svc := service.NewMonitorService(repo)
+
+	// Adicionar um host inicial
+	resAdd := svc.AddIP("192.168.1.50")
+	if !resAdd.Success {
+		t.Fatalf("Erro ao adicionar host inicial: %s", resAdd.Error)
+	}
+
+	devices, err := svc.ListIPs()
+	if err != nil || len(devices) == 0 {
+		t.Fatalf("Falha ao listar dispositivos após adicionar")
+	}
+	targetID := devices[0].ID
+
+	// 1. Edição com sucesso para hostname
+	resEdit := svc.EditIP(targetID, "google.com.br")
+	if !resEdit.Success {
+		t.Fatalf("Esperava sucesso ao editar para google.com.br: %s", resEdit.Error)
+	}
+
+	updatedDevices, _ := svc.ListIPs()
+	if len(updatedDevices) != 1 || updatedDevices[0].IP != "google.com.br" {
+		t.Errorf("Esperava host 'google.com.br', obteve %v", updatedDevices)
+	}
+
+	// 2. Edição com URL completa (deve sanitizar para domínio)
+	resEditURL := svc.EditIP(targetID, "https://github.com/AdemarTellecher")
+	if !resEditURL.Success {
+		t.Fatalf("Esperava sucesso ao editar com URL: %s", resEditURL.Error)
+	}
+
+	devicesAfterURL, _ := svc.ListIPs()
+	if len(devicesAfterURL) != 1 || devicesAfterURL[0].IP != "github.com" {
+		t.Errorf("Esperava host 'github.com', obteve %v", devicesAfterURL)
+	}
+
+	// 3. Edição com valor inválido (deve rejeitar e não alterar)
+	resEditInvalid := svc.EditIP(targetID, "invalido#host")
+	if resEditInvalid.Success {
+		t.Fatalf("Esperava erro ao tentar editar para host inválido")
+	}
+
+	// 4. Edição com valor duplicado
+	_ = svc.AddIP("10.0.0.1")
+	devicesList, _ := svc.ListIPs()
+	var secondID int
+	for _, d := range devicesList {
+		if d.IP == "10.0.0.1" {
+			secondID = d.ID
+			break
+		}
+	}
+	resEditDuplicate := svc.EditIP(secondID, "github.com")
+	if resEditDuplicate.Success {
+		t.Fatalf("Esperava falha ao tentar duplicar host existente")
+	}
+}

@@ -32,9 +32,10 @@ Inspirado no design minimalista e moderno do Microsoft PC Manager, o **IP Monito
 - **Identificação Visual Suave**: Indicadores de status refinados, incluindo destaque suave em tom vermelho-alaranjado para hosts inacessíveis.
 - **Cadastro com Modal Bloqueante**: Diálogo modal sobreposto na seção de disponibilidade, impedindo cliques externos e garantindo foco total no cadastro.
 - **Barra Lateral com Ações Rápidas**:
-  - **Cadastrar**: Abertura rápida do modal de novo host com placeholder orientativo (`Ex: 192.168.1.1 ou host.local`).
+  - **Cadastrar**: Abertura rápida do modal de novo host com placeholder orientativo (`Ex: 192.168.1.1 ou google.com.br`).
   - **Importar**: Leitura em lote de arquivos `.json` com validação e sanitização automática de IPs/hosts.
   - **Varredura**: Disparo manual de ICMP Ping imediato com animação rotativa no ícone e feedback visual no status.
+  - **Editar**: Edição rápida do host selecionado via botão na barra lateral ou duplo clique na linha da tabela.
   - **Remover**: Exclusão de host selecionado com confirmação imediata.
 - **Varredura Automática em Background**: Verificação periódica a cada 1 minuto mantendo o painel de disponibilidade sempre atualizado.
 - **Temas Claro e Escuro**: Alternância instantânea com contraste polido e compatibilidade nativa com o Windows 10/11.
@@ -69,13 +70,15 @@ make info    # Exibe dados do ambiente, SO detectado e flags de compilação
 
 1. **Cadastrar IP ou Hostname**:
    - Clique em **Cadastrar** na barra lateral. O modal central sobreposto será exibido com a interface principal bloqueada. Digite o endereço e pressione `Enter` ou clique em `Cadastrar`.
-2. **Realizar Varredura Manual**:
+2. **Editar IP ou Hostname**:
+   - Selecione a linha do host desejado e clique no botão **Editar** na barra lateral (ou dê um **duplo clique** diretamente na linha). O modal abrirá pré-preenchido para alteração imediata.
+3. **Realizar Varredura Manual**:
    - Clique no botão **Varredura** na barra lateral. O ícone girará enquanto os pings ICMP são emitidos e a lista e os cards de disponibilidade serão atualizados.
-3. **Importar Lista em Lote**:
+4. **Importar Lista em Lote**:
    - Clique em **Importar** na barra lateral e selecione o arquivo `.json` contendo a lista de hosts.
-4. **Remover Host**:
+5. **Remover Host**:
    - Selecione a linha do host desejado na lista e clique no botão **Remover** na barra lateral.
-5. **Alternar Tema**:
+6. **Alternar Tema**:
    - Clique no botão **Tema** no canto superior direito para alternar dinamicamente entre os modos Escuro e Claro.
 
 ---

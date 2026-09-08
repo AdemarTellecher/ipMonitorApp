@@ -83,6 +83,15 @@
                 </ul>
 
                 <ul class="nav-group bottom">
+                    <li class="nav-item disabled" id="navEdit" title="Editar Host Selecionado">
+                        <div class="nav-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </div>
+                        <span class="nav-label">Editar</span>
+                    </li>
                     <li class="nav-item disabled" id="navRemove" title="Remover Host Selecionado">
                         <div class="nav-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -151,14 +160,14 @@
                         </div>
                     </div>
 
-                    <!-- Modal de Cadastro sobreposto à Disponibilidade de Rede -->
+                    <!-- Modal de Cadastro / Edição sobreposto à Disponibilidade de Rede -->
                     <div id="addIpModal" class="add-ip-overlay hidden">
                         <div class="modal-inner">
                             <div class="modal-header">
-                                <span class="modal-title">Cadastrar Novo Dispositivo</span>
+                                <span class="modal-title" id="modalTitle">Cadastrar Novo Dispositivo</span>
                                 <button id="modalCloseXBtn" class="modal-close-x" title="Fechar">&times;</button>
                             </div>
-                            <p class="modal-desc">Digite o IP ou hostname para iniciar o monitoramento contínuo via ICMP Ping.</p>
+                            <p class="modal-desc" id="modalDesc">Digite o IP ou hostname para iniciar o monitoramento contínuo via ICMP Ping.</p>
                             <div class="input-wrapper modal-input-wrapper">
                                 <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="11" cy="11" r="8"/>
@@ -169,8 +178,8 @@
                             <div class="modal-actions">
                                 <button id="cancelAddBtn" class="btn-action btn-modal-cancel">Cancelar</button>
                                 <button id="addBtn" class="btn-action btn-modal-confirm">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    Cadastrar
+                                    <svg id="modalConfirmIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    <span id="modalConfirmLabel">Cadastrar</span>
                                 </button>
                             </div>
                         </div>

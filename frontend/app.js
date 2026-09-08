@@ -2,8 +2,9 @@
 // IP Monitor - Lógica do Frontend (Estilo PC Manager)
 // ==============================================================================
 
-let selectedIp = null;
+let selectedDevice = null;
 let currentIps = [];
+let modalMode = 'add'; // 'add' | 'edit'
 
 // Elementos da UI
 const metricTotal = document.getElementById('metricTotal');
@@ -13,6 +14,9 @@ const hostsList = document.getElementById('hostsList');
 const ipInput = document.getElementById('ipInput');
 const addBtn = document.getElementById('addBtn');
 const addIpModal = document.getElementById('addIpModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const modalConfirmLabel = document.getElementById('modalConfirmLabel');
 const networkOverviewCard = document.getElementById('networkOverviewCard');
 const modalBackdrop = document.getElementById('modalBackdrop');
 const cancelAddBtn = document.getElementById('cancelAddBtn');
@@ -25,6 +29,7 @@ const toast = document.getElementById('toast');
 const navFocusAdd = document.getElementById('navFocusAdd');
 const navImport = document.getElementById('navImport');
 const navRefresh = document.getElementById('navRefresh');
+const navEdit = document.getElementById('navEdit');
 const navRemove = document.getElementById('navRemove');
 const navAbout = document.getElementById('navAbout');
 
@@ -69,9 +74,14 @@ function renderHosts(ips) {
             if (isOnline) onlineCount++;
             if (isOffline) offlineCount++;
 
+            const isSelected = selectedDevice && selectedDevice.id === device.id;
             const row = document.createElement('div');
-            row.className = `host-row ${selectedIp === device.ip ? 'selected' : ''}`;
-            row.onclick = () => selectIp(device.ip);
+            row.className = `host-row ${isSelected ? 'selected' : ''}`;
+            row.onclick = () => selectDevice(device);
+            row.ondblclick = () => {
+                selectDevice(device);
+                openEditModal();
+            };
 
             const badgeClass = isOnline ? 'online' : (isOffline ? 'offline' : 'unknown');
 
@@ -97,26 +107,32 @@ function renderHosts(ips) {
     metricOffline.textContent = offlineCount;
 
     // Valida seleção ativa
-    const isSelectedStillValid = currentIps.some(d => d.ip === selectedIp);
-    if (!isSelectedStillValid) {
-        selectedIp = null;
+    if (selectedDevice) {
+        const matching = currentIps.find(d => d.id === selectedDevice.id);
+        selectedDevice = matching || null;
     }
-    updateRemoveButtonsState();
+    updateActionButtonsState();
 }
 
-// Atualiza o estado do botão de remover na sidebar
-function updateRemoveButtonsState() {
-    const hasSelection = Boolean(selectedIp);
+// Atualiza o estado dos botões de ação sensíveis à seleção (Editar e Remover)
+function updateActionButtonsState() {
+    const hasSelection = Boolean(selectedDevice);
     if (hasSelection) {
+        navEdit.classList.remove('disabled');
         navRemove.classList.remove('disabled');
     } else {
+        navEdit.classList.add('disabled');
         navRemove.classList.add('disabled');
     }
 }
 
-// Seleciona um IP para ação
-function selectIp(ip) {
-    selectedIp = (selectedIp === ip) ? null : ip;
+// Seleciona um dispositivo para ação
+function selectDevice(device) {
+    if (selectedDevice && selectedDevice.id === device.id) {
+        selectedDevice = null;
+    } else {
+        selectedDevice = device;
+    }
     renderHosts(currentIps);
 }
 
@@ -153,10 +169,38 @@ async function loadIps() {
 
 // Controle do Modal de Cadastro Sobreposto (Bloqueante)
 function openAddModal() {
+    modalMode = 'add';
+    modalTitle.textContent = 'Cadastrar Novo Dispositivo';
+    modalDesc.textContent = 'Digite o IP ou hostname para iniciar o monitoramento contínuo via ICMP Ping.';
+    modalConfirmLabel.textContent = 'Cadastrar';
+    ipInput.value = '';
+
     modalBackdrop.classList.remove('hidden');
     networkOverviewCard.classList.add('has-modal');
     addIpModal.classList.remove('hidden');
     navFocusAdd.classList.add('active');
+    setTimeout(() => {
+        ipInput.focus();
+        ipInput.select();
+    }, 50);
+}
+
+// Controle do Modal de Edição
+function openEditModal() {
+    if (!selectedDevice) {
+        showToast('Selecione um host na lista para editar');
+        return;
+    }
+    modalMode = 'edit';
+    modalTitle.textContent = 'Editar Dispositivo / Host';
+    modalDesc.textContent = 'Atualize o IP ou hostname do dispositivo selecionado.';
+    modalConfirmLabel.textContent = 'Salvar';
+    ipInput.value = selectedDevice.ip;
+
+    modalBackdrop.classList.remove('hidden');
+    networkOverviewCard.classList.add('has-modal');
+    addIpModal.classList.remove('hidden');
+    navEdit.classList.add('active');
     setTimeout(() => {
         ipInput.focus();
         ipInput.select();
@@ -168,29 +212,44 @@ function closeAddModal() {
     networkOverviewCard.classList.remove('has-modal');
     modalBackdrop.classList.add('hidden');
     navFocusAdd.classList.remove('active');
+    navEdit.classList.remove('active');
     ipInput.value = '';
+    modalMode = 'add';
 }
 
-// Adiciona um novo IP
-async function handleAddIp() {
-    const ip = ipInput.value.trim();
-    if (!ip) {
+// Submissão do Modal (Cadastrar ou Editar dependendo do modo)
+async function handleModalSubmit() {
+    const rawValue = ipInput.value.trim();
+    if (!rawValue) {
         ipInput.focus();
         return;
     }
 
     try {
         addBtn.disabled = true;
-        const result = await callGo('add', { ip });
-        if (result && result.error) {
-            showToast(result.error);
-        } else {
-            closeAddModal();
-            showToast(`Host ${ip} cadastrado com sucesso!`);
-            await loadIps();
+        if (modalMode === 'add') {
+            const result = await callGo('add', { ip: rawValue });
+            if (result && result.error) {
+                showToast(result.error);
+            } else {
+                closeAddModal();
+                showToast(`Host ${rawValue} cadastrado com sucesso!`);
+                await loadIps();
+            }
+        } else if (modalMode === 'edit') {
+            if (!selectedDevice) return;
+            const result = await callGo('edit', { id: selectedDevice.id, newIp: rawValue });
+            if (result && result.error) {
+                showToast(result.error);
+            } else {
+                closeAddModal();
+                showToast(`Host alterado para ${rawValue} com sucesso!`);
+                selectedDevice = null;
+                await loadIps();
+            }
         }
     } catch (err) {
-        showToast('Erro ao cadastrar host');
+        showToast(modalMode === 'edit' ? 'Erro ao editar host' : 'Erro ao cadastrar host');
     } finally {
         addBtn.disabled = false;
     }
@@ -214,54 +273,46 @@ async function handleRefresh() {
 
 // Remove o IP selecionado
 async function handleRemove() {
-    if (!selectedIp) return;
-    const ipToRemove = selectedIp;
+    if (!selectedDevice) return;
+    const ipToRemove = selectedDevice.ip;
 
     try {
         navRemove.classList.add('disabled');
+        navEdit.classList.add('disabled');
         const result = await callGo('remove', { ip: ipToRemove });
         if (result && result.error) {
             showToast(result.error);
         } else {
             showToast(`Host ${ipToRemove} removido`);
-            selectedIp = null;
+            selectedDevice = null;
             await loadIps();
         }
     } catch (err) {
         showToast('Erro ao remover host');
     } finally {
-        updateRemoveButtonsState();
+        updateActionButtonsState();
     }
 }
 
-// Importa arquivo JSON
+// Tratador do input file para importação
 async function handleFileSelected(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        try {
-            const rawContent = e.target.result;
-            // Envia o JSON bruto diretamente ao backend Go (que suporta {sites:[...]} ou listas)
-            const result = await callGo('import', rawContent);
-            if (result && result.error) {
-                showToast(`Erro na importação: ${result.error}`);
-            } else if (result && typeof result.count === 'number') {
-                showToast(`${result.count} novo(s) host(s) importado(s) com sucesso!`);
-                await loadIps();
-            } else {
-                showToast("Arquivo JSON importado com sucesso!");
-                await loadIps();
-            }
-        } catch (err) {
-            console.error('Erro ao processar arquivo JSON:', err);
-            showToast('Falha ao importar o arquivo JSON');
-        } finally {
-            fileInput.value = '';
+    try {
+        const text = await file.text();
+        const result = await callGo('import', text);
+        if (result && result.success) {
+            showToast(`Importação concluída: ${result.count || 0} hosts adicionados!`);
+            await loadIps();
+        } else {
+            showToast(result.error || 'Erro na importação de JSON');
         }
-    };
-    reader.readAsText(file);
+    } catch (err) {
+        showToast('Falha ao processar arquivo JSON');
+    } finally {
+        fileInput.value = '';
+    }
 }
 
 // Alterna tema claro/escuro
@@ -279,13 +330,13 @@ function initTheme() {
 }
 
 // Conexões de Eventos da Interface
-addBtn.addEventListener('click', handleAddIp);
+addBtn.addEventListener('click', handleModalSubmit);
 cancelAddBtn.addEventListener('click', closeAddModal);
 modalCloseXBtn.addEventListener('click', closeAddModal);
 modalBackdrop.addEventListener('click', closeAddModal);
 
 ipInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleAddIp();
+    if (e.key === 'Enter') handleModalSubmit();
     if (e.key === 'Escape') closeAddModal();
 });
 
@@ -302,6 +353,11 @@ navFocusAdd.addEventListener('click', () => {
 });
 navImport.addEventListener('click', () => fileInput.click());
 navRefresh.addEventListener('click', handleRefresh);
+navEdit.addEventListener('click', () => {
+    if (selectedDevice) {
+        openEditModal();
+    }
+});
 navRemove.addEventListener('click', handleRemove);
 navAbout.addEventListener('click', () => {
     showToast('IP Monitor v2.1 • Wails v3 + SQLite3');

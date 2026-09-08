@@ -1,5 +1,6 @@
 # Ignorar executáveis gerados
 *.exe
+*.exe~
 
 # Ignorar banco de dados local
 #ipmonitor.db

@@ -109,8 +109,9 @@
             <main class="main-content">
                 <!-- Card Principal de Status (Disponibilidade da Rede) -->
 
-                <!-- 2. Card Principal de Status (Inspirado no Card "Melhoria de Desempenho") -->
-                <section class="network-overview-card">
+                <!-- 2. Card Principal de Status (Disponibilidade da Rede) -->
+                <section class="network-overview-card" id="networkOverviewCard">
+                    <!-- Conteúdo normal de status -->
                     <div class="card-header">
                         <div class="card-title-group">
                             <span class="rocket-icon">⚡</span>
@@ -149,25 +150,30 @@
                             </div>
                         </div>
                     </div>
-                </section>
 
-                <!-- 3. Barra de Cadastro Rápido de IP -->
-                <section class="card-box add-ip-section" id="addSection">
-                    <div class="box-header">
-                        <span class="box-title">Adicionar Novo Endereço IP</span>
-                    </div>
-                    <div class="input-row">
-                        <div class="input-wrapper">
-                            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="11" cy="11" r="8"/>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                            </svg>
-                            <input type="text" id="ipInput" placeholder="Ex: 192.168.1.1 ou google.com" class="ip-field" autocomplete="off" spellcheck="false">
+                    <!-- Modal de Cadastro sobreposto à Disponibilidade de Rede -->
+                    <div id="addIpModal" class="add-ip-overlay hidden">
+                        <div class="modal-inner">
+                            <div class="modal-header">
+                                <span class="modal-title">Cadastrar Novo Dispositivo</span>
+                                <button id="modalCloseXBtn" class="modal-close-x" title="Fechar">&times;</button>
+                            </div>
+                            <p class="modal-desc">Digite o IP ou hostname para iniciar o monitoramento contínuo via ICMP Ping.</p>
+                            <div class="input-wrapper modal-input-wrapper">
+                                <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                                <input type="text" id="ipInput" placeholder="Ex: 192.168.1.1 ou google.com" class="ip-field" autocomplete="off" spellcheck="false">
+                            </div>
+                            <div class="modal-actions">
+                                <button id="cancelAddBtn" class="btn-action btn-modal-cancel">Cancelar</button>
+                                <button id="addBtn" class="btn-action btn-modal-confirm">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    Cadastrar
+                                </button>
+                            </div>
                         </div>
-                        <button id="addBtn" class="btn-action btn-add">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            Adicionar
-                        </button>
                     </div>
                 </section>
 
@@ -199,6 +205,9 @@
             <span class="footer-db" id="footerDbStatus">SQLite Dinâmico Conectado</span>
         </footer>
     </div>
+
+    <!-- Backdrop Bloqueador de Toda a Interface -->
+    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
 
     <!-- Toast Notification -->
     <div id="toast" class="toast hidden"></div>

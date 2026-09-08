@@ -12,6 +12,11 @@ const metricOffline = document.getElementById('metricOffline');
 const hostsList = document.getElementById('hostsList');
 const ipInput = document.getElementById('ipInput');
 const addBtn = document.getElementById('addBtn');
+const addIpModal = document.getElementById('addIpModal');
+const networkOverviewCard = document.getElementById('networkOverviewCard');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const cancelAddBtn = document.getElementById('cancelAddBtn');
+const modalCloseXBtn = document.getElementById('modalCloseXBtn');
 const fileInput = document.getElementById('fileInput');
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const toast = document.getElementById('toast');
@@ -32,9 +37,23 @@ function showToast(msg, duration = 2800) {
     }, duration);
 }
 
-// Renderiza a lista de hosts na tabela Fluent
+// Renderiza a lista de hosts na tabela Fluent (Priorizando dispositivos Offline no topo)
 function renderHosts(ips) {
-    currentIps = ips || [];
+    currentIps = (ips || []).slice().sort((a, b) => {
+        // Prioridade: Offline (0) > Desconhecido/outros (1) > Online (2)
+        const getPriority = (status) => {
+            if (status === 'Offline') return 0;
+            if (status === 'Online') return 2;
+            return 1;
+        };
+
+        const diff = getPriority(a.status) - getPriority(b.status);
+        if (diff !== 0) return diff;
+
+        // Desempate alfanumérico pelo IP/Host
+        return (a.ip || '').localeCompare(b.ip || '', undefined, { numeric: true, sensitivity: 'base' });
+    });
+
     let onlineCount = 0;
     let offlineCount = 0;
 
@@ -132,6 +151,26 @@ async function loadIps() {
     }
 }
 
+// Controle do Modal de Cadastro Sobreposto (Bloqueante)
+function openAddModal() {
+    modalBackdrop.classList.remove('hidden');
+    networkOverviewCard.classList.add('has-modal');
+    addIpModal.classList.remove('hidden');
+    navFocusAdd.classList.add('active');
+    setTimeout(() => {
+        ipInput.focus();
+        ipInput.select();
+    }, 50);
+}
+
+function closeAddModal() {
+    addIpModal.classList.add('hidden');
+    networkOverviewCard.classList.remove('has-modal');
+    modalBackdrop.classList.add('hidden');
+    navFocusAdd.classList.remove('active');
+    ipInput.value = '';
+}
+
 // Adiciona um novo IP
 async function handleAddIp() {
     const ip = ipInput.value.trim();
@@ -146,15 +185,14 @@ async function handleAddIp() {
         if (result && result.error) {
             showToast(result.error);
         } else {
-            ipInput.value = '';
-            showToast(`Host ${ip} adicionado com sucesso!`);
+            closeAddModal();
+            showToast(`Host ${ip} cadastrado com sucesso!`);
             await loadIps();
         }
     } catch (err) {
-        showToast('Erro ao adicionar host');
+        showToast('Erro ao cadastrar host');
     } finally {
         addBtn.disabled = false;
-        ipInput.focus();
     }
 }
 
@@ -242,8 +280,13 @@ function initTheme() {
 
 // Conexões de Eventos da Interface
 addBtn.addEventListener('click', handleAddIp);
+cancelAddBtn.addEventListener('click', closeAddModal);
+modalCloseXBtn.addEventListener('click', closeAddModal);
+modalBackdrop.addEventListener('click', closeAddModal);
+
 ipInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleAddIp();
+    if (e.key === 'Escape') closeAddModal();
 });
 
 fileInput.addEventListener('change', handleFileSelected);
@@ -251,8 +294,11 @@ themeToggleBtn.addEventListener('click', toggleTheme);
 
 // Conexões da Sidebar
 navFocusAdd.addEventListener('click', () => {
-    ipInput.focus();
-    ipInput.select();
+    if (addIpModal.classList.contains('hidden')) {
+        openAddModal();
+    } else {
+        closeAddModal();
+    }
 });
 navImport.addEventListener('click', () => fileInput.click());
 navRefresh.addEventListener('click', handleRefresh);

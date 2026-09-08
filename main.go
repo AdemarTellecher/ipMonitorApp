@@ -15,7 +15,7 @@ var assets embed.FS
 
 func main() {
 	// 1. Resolve dinamicamente o caminho do banco SQLite na pasta do executável
-	dbPath := model.ResolveDBPath("ipmonitor.db")
+	dbPath := model.ResolveDBPath("ipmonitorDB.db")
 	repo, err := model.NewRepository(dbPath)
 	if err != nil {
 		log.Fatalf("Erro ao inicializar o banco SQLite portátil: %v", err)
@@ -41,14 +41,14 @@ func main() {
 
 	// 4. Cria a janela nativa elegante
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:     "IP Monitor",
-		Width:     460,
-		Height:    720,
-		MinWidth:  400,
-		MinHeight: 600,
-		InitialPosition: application.WindowCentered,
-		BackgroundColour: application.NewRGB(19, 23, 31),
-		URL:       "/",
+		Title:            "IP Monitor",
+		Width:            540,
+		Height:           740,
+		MinWidth:         480,
+		MinHeight:        640,
+		InitialPosition:  application.WindowCentered,
+		BackgroundColour: application.NewRGB(16, 19, 26),
+		URL:              "/",
 	})
 
 	// 5. Rotina periódica de ping a cada 1 minuto com emissão de evento

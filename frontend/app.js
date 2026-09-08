@@ -1,4 +1,6 @@
-// Lógica reativa Vanilla JS para o frontend embutido do Wails v3
+// ==============================================================================
+// IP Monitor - Lógica do Frontend (Estilo PC Manager)
+// ==============================================================================
 
 let selectedIp = null;
 let currentIps = [];
@@ -11,14 +13,29 @@ const hostsList = document.getElementById('hostsList');
 const ipInput = document.getElementById('ipInput');
 const addBtn = document.getElementById('addBtn');
 const refreshBtn = document.getElementById('refreshBtn');
+const refreshBtnText = document.getElementById('refreshBtnText');
 const importBtn = document.getElementById('importBtn');
 const fileInput = document.getElementById('fileInput');
 const removeBtn = document.getElementById('removeBtn');
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const toast = document.getElementById('toast');
 
-// Mostra feedback toast sutil
-function showToast(msg, duration = 3000) {
+// Elementos do Banner Superior
+const healthBanner = document.getElementById('healthBanner');
+const bannerIconBubble = document.getElementById('bannerIconBubble');
+const bannerTitle = document.getElementById('bannerTitle');
+const bannerDesc = document.getElementById('bannerDesc');
+
+// Elementos da Sidebar
+const navHome = document.getElementById('navHome');
+const navFocusAdd = document.getElementById('navFocusAdd');
+const navImport = document.getElementById('navImport');
+const navRefresh = document.getElementById('navRefresh');
+const navRemove = document.getElementById('navRemove');
+const navAbout = document.getElementById('navAbout');
+
+// Exibe feedback flutuante (Toast)
+function showToast(msg, duration = 2800) {
     toast.textContent = msg;
     toast.classList.remove('hidden');
     setTimeout(() => {
@@ -26,7 +43,30 @@ function showToast(msg, duration = 3000) {
     }, duration);
 }
 
-// Renderiza a lista de hosts na tabela
+// Atualiza o Banner Superior inteligente conforme a saúde da rede
+function updateHealthBanner(total, online, offline) {
+    if (total === 0) {
+        bannerIconBubble.className = 'banner-icon-bubble';
+        bannerIconBubble.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+        bannerTitle.textContent = 'Nenhum dispositivo cadastrado';
+        bannerDesc.textContent = 'Adicione endereços IP ou importe um arquivo JSON para iniciar.';
+        return;
+    }
+
+    if (offline > 0) {
+        bannerIconBubble.className = 'banner-icon-bubble warning';
+        bannerIconBubble.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+        bannerTitle.textContent = `Atenção: ${offline} dispositivo(s) sem resposta`;
+        bannerDesc.textContent = 'Falhas de conexão detectadas via ICMP Ping. Verifique a lista abaixo.';
+    } else {
+        bannerIconBubble.className = 'banner-icon-bubble success';
+        bannerIconBubble.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+        bannerTitle.textContent = 'Rede 100% Operacional';
+        bannerDesc.textContent = `Todos os ${online} hosts monitorados estão respondendo normalmente.`;
+    }
+}
+
+// Renderiza a lista de hosts na tabela Fluent
 function renderHosts(ips) {
     currentIps = ips || [];
     let onlineCount = 0;
@@ -35,7 +75,7 @@ function renderHosts(ips) {
     hostsList.innerHTML = '';
 
     if (currentIps.length === 0) {
-        hostsList.innerHTML = `<div style="text-align:center; padding: 25px 0; color: var(--text-dim); font-size: 0.8rem;">Nenhum IP cadastrado.<br>Adicione acima ou importe um arquivo JSON.</div>`;
+        hostsList.innerHTML = `<div style="text-align:center; padding: 30px 0; color: var(--text-dim); font-size: 0.8rem;">Nenhum dispositivo na lista.<br>Cadastre um IP acima ou importe um JSON.</div>`;
     } else {
         currentIps.forEach(device => {
             const isOnline = device.status === 'Online';
@@ -45,17 +85,19 @@ function renderHosts(ips) {
             if (isOffline) offlineCount++;
 
             const row = document.createElement('div');
-            row.className = `table-row ${selectedIp === device.ip ? 'selected' : ''}`;
+            row.className = `host-row ${selectedIp === device.ip ? 'selected' : ''}`;
             row.onclick = () => selectIp(device.ip);
 
-            const badgeClass = isOnline ? 'badge-online' : (isOffline ? 'badge-offline' : 'badge-unknown');
-            const dotClass = isOnline ? 'dot-online' : (isOffline ? 'dot-offline' : '');
+            const badgeClass = isOnline ? 'online' : (isOffline ? 'offline' : 'unknown');
 
             row.innerHTML = `
-                <div class="col-ip font-mono">${device.ip}</div>
-                <div class="col-status">
-                    <span class="badge ${badgeClass}">
-                        ${dotClass ? `<span class="dot ${dotClass}"></span>` : ''}
+                <div class="host-ip-col">
+                    <span class="host-radio-dot"></span>
+                    <span>${device.ip}</span>
+                </div>
+                <div>
+                    <span class="status-badge ${badgeClass}">
+                        <span class="status-pip"></span>
                         ${device.status}
                     </span>
                 </div>
@@ -64,30 +106,40 @@ function renderHosts(ips) {
         });
     }
 
-    // Atualiza contadores dos Cards
+    // Atualiza contadores
     metricTotal.textContent = currentIps.length;
     metricOnline.textContent = onlineCount;
     metricOffline.textContent = offlineCount;
 
-    // Atualiza estado do botão Remover
+    // Atualiza Banner de Diagnóstico
+    updateHealthBanner(currentIps.length, onlineCount, offlineCount);
+
+    // Valida seleção ativa
     const isSelectedStillValid = currentIps.some(d => d.ip === selectedIp);
     if (!isSelectedStillValid) {
         selectedIp = null;
     }
-    removeBtn.disabled = !selectedIp;
+    updateRemoveButtonsState();
 }
 
-// Seleciona um IP para remoção
-function selectIp(ip) {
-    if (selectedIp === ip) {
-        selectedIp = null;
+// Atualiza o estado dos botões de remover
+function updateRemoveButtonsState() {
+    const hasSelection = Boolean(selectedIp);
+    removeBtn.disabled = !hasSelection;
+    if (hasSelection) {
+        navRemove.classList.remove('disabled');
     } else {
-        selectedIp = ip;
+        navRemove.classList.add('disabled');
     }
+}
+
+// Seleciona um IP para ação
+function selectIp(ip) {
+    selectedIp = (selectedIp === ip) ? null : ip;
     renderHosts(currentIps);
 }
 
-// Chamadas Go via rota HTTP interna /api/... servida nativamente pelo Wails v3
+// Chamadas Go via rota HTTP interna /api/...
 async function callGo(endpoint, data = null) {
     try {
         const options = {
@@ -95,152 +147,193 @@ async function callGo(endpoint, data = null) {
             headers: { 'Content-Type': 'application/json' },
         };
         if (data) {
-            if (typeof data === 'string') {
-                options.body = data;
-            } else {
-                options.body = JSON.stringify(data);
-            }
+            options.body = (typeof data === 'string') ? data : JSON.stringify(data);
         }
-        const res = await fetch(`/api/${endpoint}`, options);
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
+        const response = await fetch(`/api/${endpoint}`, options);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${await response.text()}`);
         }
-        return await res.json();
+        return await response.json();
     } catch (err) {
-        console.error(`Erro na chamada /api/${endpoint}:`, err);
+        console.error(`Erro ao chamar /api/${endpoint}:`, err);
         throw err;
     }
 }
 
-// Carrega IPs
-async function loadIPs() {
+// Carrega os IPs ao inicializar
+async function loadIps() {
     try {
         const ips = await callGo('list');
-        if (ips) {
-            renderHosts(ips);
-        }
+        renderHosts(ips);
     } catch (err) {
-        console.error("Erro ao listar IPs:", err);
+        showToast('Erro ao carregar lista de IPs');
     }
 }
 
-// Adiciona IP
-async function handleAddIP() {
+// Adiciona um novo IP
+async function handleAddIp() {
     const ip = ipInput.value.trim();
-    if (!ip) return;
-
-    try {
-        const res = await callGo('add', { ip });
-        if (res && res.success) {
-            ipInput.value = '';
-            showToast(`IP ${ip} adicionado com sucesso!`);
-            await loadIPs();
-        } else if (res && res.error) {
-            showToast(res.error);
-        }
-    } catch (err) {
-        showToast(err.toString());
+    if (!ip) {
+        ipInput.focus();
+        return;
     }
-}
-
-// Remove IP selecionado
-async function handleRemoveIP() {
-    if (!selectedIp) return;
-    const toRemove = selectedIp;
 
     try {
-        const res = await callGo('remove', { ip: toRemove });
-        selectedIp = null;
-        showToast(`IP ${toRemove} removido.`);
-        await loadIPs();
-    } catch (err) {
-        showToast(err.toString());
-    }
-}
-
-// Atualiza status de todos via Ping
-async function handleRefreshAll() {
-    refreshBtn.disabled = true;
-    showToast("Atualizando status dos IPs via ICMP Ping...");
-    try {
-        const updated = await callGo('update');
-        if (updated) {
-            renderHosts(updated);
+        addBtn.disabled = true;
+        const result = await callGo('add', { ip });
+        if (result && result.error) {
+            showToast(result.error);
         } else {
-            await loadIPs();
+            ipInput.value = '';
+            showToast(`Host ${ip} adicionado com sucesso!`);
+            await loadIps();
         }
-        showToast("Status atualizado com sucesso!");
     } catch (err) {
-        showToast("Erro ao atualizar status: " + err);
+        showToast('Erro ao adicionar host');
     } finally {
-        refreshBtn.disabled = false;
+        addBtn.disabled = false;
+        ipInput.focus();
     }
 }
 
-// Importar JSON
-importBtn.onclick = () => fileInput.click();
+// Atualiza o status de todos os IPs com animação
+async function handleRefresh() {
+    try {
+        refreshBtn.classList.add('spinning');
+        refreshBtn.disabled = true;
+        refreshBtnText.textContent = 'Verificando...';
 
-fileInput.onchange = async (e) => {
-    const file = e.target.files[0];
+        const updated = await callGo('update');
+        renderHosts(updated);
+        showToast('Varredura ICMP Ping concluída!');
+    } catch (err) {
+        showToast('Falha ao atualizar status dos hosts');
+    } finally {
+        refreshBtn.classList.remove('spinning');
+        refreshBtn.disabled = false;
+        refreshBtnText.textContent = 'Atualizar Todos';
+    }
+}
+
+// Remove o IP selecionado
+async function handleRemove() {
+    if (!selectedIp) return;
+    const ipToRemove = selectedIp;
+
+    try {
+        removeBtn.disabled = true;
+        const result = await callGo('remove', { ip: ipToRemove });
+        if (result && result.error) {
+            showToast(result.error);
+        } else {
+            showToast(`Host ${ipToRemove} removido`);
+            selectedIp = null;
+            await loadIps();
+        }
+    } catch (err) {
+        showToast('Erro ao remover host');
+    } finally {
+        updateRemoveButtonsState();
+    }
+}
+
+// Importa arquivo JSON
+async function handleFileSelected(event) {
+    const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async (evt) => {
+    reader.onload = async (e) => {
         try {
-            const content = evt.target.result;
-            const res = await callGo('import', content);
-            if (res && typeof res.count === 'number') {
-                showToast(`${res.count} novo(s) IP(s) importado(s)!`);
-            } else if (res && res.error) {
-                showToast(res.error);
-            } else {
-                showToast("Arquivo JSON processado.");
+            const rawContent = e.target.result;
+            const parsed = JSON.parse(rawContent);
+
+            let hosts = [];
+            if (Array.isArray(parsed)) {
+                hosts = parsed;
+            } else if (parsed && typeof parsed === 'object') {
+                hosts = parsed.hosts || parsed.ips || parsed.devices || Object.values(parsed);
             }
-            await loadIPs();
+
+            const cleanHosts = hosts.map(item => {
+                if (typeof item === 'string') return item;
+                if (item && typeof item === 'object') {
+                    return item.ip || item.host || item.address || item.target || '';
+                }
+                return '';
+            }).filter(Boolean);
+
+            if (cleanHosts.length === 0) {
+                showToast('Nenhum endereço IP válido encontrado no JSON');
+                return;
+            }
+
+            const payload = JSON.stringify(cleanHosts);
+            const result = await callGo('import', payload);
+            if (result && result.error) {
+                showToast(`Erro na importação: ${result.error}`);
+            } else {
+                showToast(`${cleanHosts.length} hosts importados com sucesso!`);
+                await loadIps();
+            }
         } catch (err) {
-            showToast("Erro ao importar JSON: " + err);
+            console.error('Erro ao processar arquivo JSON:', err);
+            showToast('Formato de arquivo JSON inválido');
+        } finally {
+            fileInput.value = '';
         }
     };
     reader.readAsText(file);
-    fileInput.value = '';
-};
+}
 
-// Eventos de botões e input
-addBtn.onclick = handleAddIP;
-ipInput.onkeydown = (e) => {
-    if (e.key === 'Enter') handleAddIP();
-};
-refreshBtn.onclick = handleRefreshAll;
-removeBtn.onclick = handleRemoveIP;
+// Alterna tema claro/escuro
+function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-theme');
+    localStorage.setItem('ipmonitor_theme', isLight ? 'light' : 'dark');
+}
 
-// Alternar Tema
-let isDark = true;
-themeToggleBtn.onclick = () => {
-    isDark = !isDark;
-    document.body.classList.toggle('light-theme', !isDark);
-    
-    // Atualiza ícone e texto para indicar o próximo estado
-    if (isDark) {
-        themeToggleBtn.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-            <span>Claro</span>
-        `;
-    } else {
-        themeToggleBtn.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            <span>Escuro</span>
-        `;
+// Inicializa preferências de tema
+function initTheme() {
+    const saved = localStorage.getItem('ipmonitor_theme');
+    if (saved === 'light') {
+        document.body.classList.add('light-theme');
     }
-};
+}
 
-// Ouvinte de evento periódico de ping vindo do Go (Wails events)
+// Conexões de Eventos da Interface
+addBtn.addEventListener('click', handleAddIp);
+ipInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleAddIp();
+});
+
+refreshBtn.addEventListener('click', handleRefresh);
+removeBtn.addEventListener('click', handleRemove);
+importBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', handleFileSelected);
+themeToggleBtn.addEventListener('click', toggleTheme);
+
+// Conexões da Sidebar
+navHome.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+navFocusAdd.addEventListener('click', () => {
+    ipInput.focus();
+    ipInput.select();
+});
+navImport.addEventListener('click', () => fileInput.click());
+navRefresh.addEventListener('click', handleRefresh);
+navRemove.addEventListener('click', handleRemove);
+navAbout.addEventListener('click', () => {
+    showToast('IP Monitor v2.1 • Wails v3 + SQLite3');
+});
+
+// Listener para eventos periódicos emitidos pelo backend Go (Wails v3)
 if (window.wails && window.wails.Events) {
-    window.wails.Events.On('ips-updated', (data) => {
-        renderHosts(data);
+    window.wails.Events.On('ips-updated', (updatedIps) => {
+        renderHosts(updatedIps);
     });
 }
 
-// Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-    loadIPs();
-});
+// Inicia aplicação
+initTheme();
+loadIps();

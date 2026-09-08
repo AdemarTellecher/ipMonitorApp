@@ -36,6 +36,3 @@ techContext.md
 .DS_Store
 Thumbs.db
 
-# Ignorar arquivos de módulo do Go
-go.mod
-go.sum

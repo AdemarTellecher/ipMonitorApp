@@ -18,7 +18,7 @@ var appIcon []byte
 
 func main() {
 	// 1. Resolve dinamicamente o caminho do banco SQLite na pasta do executável
-	dbPath := model.ResolveDBPath("ipmonitorDB.db")
+	dbPath := model.ResolveDBPath("ipMonitorDB.db")
 	repo, err := model.NewRepository(dbPath)
 	if err != nil {
 		log.Fatalf("Erro ao inicializar o banco SQLite portátil: %v", err)

@@ -241,6 +241,49 @@ body.light-theme .nav-item.active {
     cursor: not-allowed;
 }
 
+/* Destaque para o botão Varredura na Barra Lateral */
+#navRefresh {
+    color: var(--accent-blue);
+    background: rgba(64, 181, 255, 0.12);
+    border: 1px solid rgba(64, 181, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(64, 181, 255, 0.18);
+}
+
+#navRefresh:hover:not(.disabled) {
+    background: var(--accent-blue);
+    color: #0b1320;
+    border-color: var(--accent-blue-hover);
+    box-shadow: 0 4px 14px rgba(64, 181, 255, 0.45);
+    transform: translateY(-1px);
+}
+
+#navRefresh:active:not(.disabled) {
+    transform: translateY(0);
+}
+
+body.light-theme #navRefresh {
+    color: #0284c7;
+    background: rgba(2, 132, 199, 0.1);
+    border: 1px solid rgba(2, 132, 199, 0.35);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
+}
+
+body.light-theme #navRefresh:hover:not(.disabled) {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0369a1;
+}
+
+/* Animação de rotação contínua durante a varredura */
+#navRefresh.spinning .nav-icon svg {
+    animation: spin 1s linear infinite;
+}
+
+#navRefresh.spinning {
+    pointer-events: none;
+    opacity: 0.85;
+}
+
 .nav-icon {
     width: 18px;
     height: 18px;
@@ -411,39 +454,6 @@ body.light-theme .metric-column {
     font-size: 10.5px;
     color: var(--text-secondary);
     margin-top: 2px;
-}
-
-/* Botão de Destaque "Atualizar Todos" */
-.primary-boost-btn {
-    width: 100%;
-    padding: 10px 14px;
-    background: var(--accent-blue);
-    color: #0b1320;
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: var(--shadow-btn);
-    transition: all 0.16s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.primary-boost-btn:hover {
-    background: var(--accent-blue-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(64, 181, 255, 0.45);
-}
-
-.primary-boost-btn:active {
-    transform: translateY(0);
-}
-
-.primary-boost-btn.spinning svg {
-    animation: spin 1s linear infinite;
 }
 
 @keyframes spin {

@@ -12,14 +12,11 @@ const metricOffline = document.getElementById('metricOffline');
 const hostsList = document.getElementById('hostsList');
 const ipInput = document.getElementById('ipInput');
 const addBtn = document.getElementById('addBtn');
-const refreshBtn = document.getElementById('refreshBtn');
-const refreshBtnText = document.getElementById('refreshBtnText');
 const fileInput = document.getElementById('fileInput');
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const toast = document.getElementById('toast');
 
 // Elementos da Sidebar
-const navHome = document.getElementById('navHome');
 const navFocusAdd = document.getElementById('navFocusAdd');
 const navImport = document.getElementById('navImport');
 const navRefresh = document.getElementById('navRefresh');
@@ -161,12 +158,11 @@ async function handleAddIp() {
     }
 }
 
-// Atualiza o status de todos os IPs com animação
+// Atualiza o status de todos os IPs com animação na sidebar
 async function handleRefresh() {
     try {
-        refreshBtn.classList.add('spinning');
-        refreshBtn.disabled = true;
-        refreshBtnText.textContent = 'Verificando...';
+        navRefresh.classList.add('spinning');
+        showToast('Executando varredura ICMP Ping...');
 
         const updated = await callGo('update');
         renderHosts(updated);
@@ -174,9 +170,7 @@ async function handleRefresh() {
     } catch (err) {
         showToast('Falha ao atualizar status dos hosts');
     } finally {
-        refreshBtn.classList.remove('spinning');
-        refreshBtn.disabled = false;
-        refreshBtnText.textContent = 'Atualizar Todos';
+        navRefresh.classList.remove('spinning');
     }
 }
 
@@ -252,14 +246,10 @@ ipInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleAddIp();
 });
 
-refreshBtn.addEventListener('click', handleRefresh);
 fileInput.addEventListener('change', handleFileSelected);
 themeToggleBtn.addEventListener('click', toggleTheme);
 
 // Conexões da Sidebar
-navHome.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-});
 navFocusAdd.addEventListener('click', () => {
     ipInput.focus();
     ipInput.select();

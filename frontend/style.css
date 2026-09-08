@@ -623,11 +623,6 @@ body.light-theme .modal-close-x:hover {
     color: var(--text-secondary);
 }
 
-.input-row {
-    display: flex;
-    gap: 8px;
-}
-
 .input-wrapper {
     position: relative;
     display: flex;
@@ -712,19 +707,8 @@ body.light-theme .btn-modal-cancel:hover {
     cursor: not-allowed;
 }
 
-.btn-add {
-    background: rgba(56, 189, 248, 0.12);
-    border: 1px solid var(--accent-cyan);
-    color: var(--accent-cyan);
-}
-
-.btn-add:hover {
-    background: var(--accent-cyan);
-    color: #0d121c;
-}
-
 /* --------------------------------------------------------------------------
-   Card 4: Lista de Hosts Monitorados (Fluent Table)
+   Card 3: Lista de Hosts Monitorados (Fluent Table)
    -------------------------------------------------------------------------- */
 .hosts-section {
     flex: 1;
@@ -738,42 +722,6 @@ body.light-theme .btn-modal-cancel:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-
-.header-tools {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.btn-text-tool {
-    background: transparent;
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-sm);
-    color: var(--text-secondary);
-    padding: 4px 8px;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    transition: all 0.15s ease;
-}
-
-.btn-text-tool:hover:not(:disabled) {
-    color: var(--text-primary);
-    border-color: var(--border-focus);
-}
-
-.btn-tool-danger:hover:not(:disabled) {
-    color: var(--accent-red);
-    border-color: var(--accent-red);
-}
-
-.btn-text-tool:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
 }
 
 .hosts-table-head {

@@ -9,7 +9,7 @@
 *.sqlite
 
 # Ignorar arquivos de exportação/dados locais
-Ping-*.json
+ip_-*.json
 
 # Ignorar dependências e arquivos temporários do Go
 /bin/

@@ -360,7 +360,7 @@ navEdit.addEventListener('click', () => {
 });
 navRemove.addEventListener('click', handleRemove);
 navAbout.addEventListener('click', () => {
-    showToast('IP Monitor v2.1 • Wails v3 + SQLite3');
+    showToast('IP Monitor v2.2 • Wails v3 + SQLite3');
 });
 
 // Listener para eventos periódicos emitidos pelo backend Go (Wails v3)

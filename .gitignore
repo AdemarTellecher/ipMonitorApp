@@ -17,7 +17,6 @@ ip_seeds.json
 
 # Ignorar arquivos do VSCode
 .vscode/
-.github/
 # Ignorar arquivos de configuração do GoLand
 .idea/
 productContext.md

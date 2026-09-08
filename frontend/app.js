@@ -246,39 +246,20 @@ async function handleFileSelected(event) {
     reader.onload = async (e) => {
         try {
             const rawContent = e.target.result;
-            const parsed = JSON.parse(rawContent);
-
-            let hosts = [];
-            if (Array.isArray(parsed)) {
-                hosts = parsed;
-            } else if (parsed && typeof parsed === 'object') {
-                hosts = parsed.hosts || parsed.ips || parsed.devices || Object.values(parsed);
-            }
-
-            const cleanHosts = hosts.map(item => {
-                if (typeof item === 'string') return item;
-                if (item && typeof item === 'object') {
-                    return item.ip || item.host || item.address || item.target || '';
-                }
-                return '';
-            }).filter(Boolean);
-
-            if (cleanHosts.length === 0) {
-                showToast('Nenhum endereço IP válido encontrado no JSON');
-                return;
-            }
-
-            const payload = JSON.stringify(cleanHosts);
-            const result = await callGo('import', payload);
+            // Envia o JSON bruto diretamente ao backend Go (que suporta {sites:[...]} ou listas)
+            const result = await callGo('import', rawContent);
             if (result && result.error) {
                 showToast(`Erro na importação: ${result.error}`);
+            } else if (result && typeof result.count === 'number') {
+                showToast(`${result.count} novo(s) host(s) importado(s) com sucesso!`);
+                await loadIps();
             } else {
-                showToast(`${cleanHosts.length} hosts importados com sucesso!`);
+                showToast("Arquivo JSON importado com sucesso!");
                 await loadIps();
             }
         } catch (err) {
             console.error('Erro ao processar arquivo JSON:', err);
-            showToast('Formato de arquivo JSON inválido');
+            showToast('Falha ao importar o arquivo JSON');
         } finally {
             fileInput.value = '';
         }

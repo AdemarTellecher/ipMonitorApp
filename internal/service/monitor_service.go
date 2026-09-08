@@ -130,20 +130,74 @@ func (s *MonitorService) UpdateAllStatuses() ([]model.IPDevice, error) {
 
 // ImportJSONContent processa o texto JSON recebido do frontend e insere os IPs
 func (s *MonitorService) ImportJSONContent(content string) Result {
-	var config model.SitesConfig
-	if err := json.Unmarshal([]byte(content), &config); err != nil {
+	var rawData interface{}
+	if err := json.Unmarshal([]byte(content), &rawData); err != nil {
 		return Result{Success: false, Error: "Formato JSON inválido"}
 	}
 
-	if len(config.Sites) == 0 {
-		return Result{Success: false, Error: "Nenhum site encontrado no arquivo JSON"}
+	var candidateStrings []string
+
+	switch v := rawData.(type) {
+	case map[string]interface{}:
+		// 1. Verifica se tem campo "sites" (padrão do app anterior)
+		if sitesRaw, ok := v["sites"]; ok {
+			if sitesList, ok := sitesRaw.([]interface{}); ok {
+				for _, item := range sitesList {
+					if m, ok := item.(map[string]interface{}); ok {
+						if u, ok := m["url"].(string); ok {
+							candidateStrings = append(candidateStrings, u)
+						} else if ip, ok := m["ip"].(string); ok {
+							candidateStrings = append(candidateStrings, ip)
+						}
+					}
+				}
+			}
+		} else {
+			// Outras chaves possíveis como "ips", "hosts", "devices"
+			for _, key := range []string{"ips", "hosts", "devices"} {
+				if listRaw, ok := v[key]; ok {
+					if list, ok := listRaw.([]interface{}); ok {
+						for _, item := range list {
+							if str, ok := item.(string); ok {
+								candidateStrings = append(candidateStrings, str)
+							} else if m, ok := item.(map[string]interface{}); ok {
+								for _, subKey := range []string{"url", "ip", "host", "address"} {
+									if val, ok := m[subKey].(string); ok {
+										candidateStrings = append(candidateStrings, val)
+										break
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	case []interface{}:
+		// Array de strings ou array de objetos
+		for _, item := range v {
+			if str, ok := item.(string); ok {
+				candidateStrings = append(candidateStrings, str)
+			} else if m, ok := item.(map[string]interface{}); ok {
+				for _, subKey := range []string{"url", "ip", "host", "address"} {
+					if val, ok := m[subKey].(string); ok {
+						candidateStrings = append(candidateStrings, val)
+						break
+					}
+				}
+			}
+		}
+	}
+
+	if len(candidateStrings) == 0 {
+		return Result{Success: false, Error: "Nenhum endereço ou site encontrado no arquivo JSON"}
 	}
 
 	var validIPs []string
 	seen := make(map[string]bool)
 
-	for _, site := range config.Sites {
-		cleaned := cleanHostOrIP(site.URL)
+	for _, raw := range candidateStrings {
+		cleaned := cleanHostOrIP(raw)
 		if cleaned == "" || seen[cleaned] {
 			continue
 		}

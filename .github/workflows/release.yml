@@ -119,7 +119,11 @@ jobs:
           cp AppIcon.icns "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
           rm -f AppIcon.icns
 
-          # 4. Compacta o .app em ZIP preservando permissões de execução
+          # 4. Assina o .app digitalmente (Ad-hoc Code Signing) para o Gatekeeper do macOS
+          codesign --force --deep --sign - "$APP_BUNDLE"
+          codesign --verify --deep --strict "$APP_BUNDLE"
+
+          # 5. Compacta o .app em ZIP preservando permissões de execução e assinaturas
           ditto -c -k --keepParent "$APP_BUNDLE" "${{ matrix.asset_name }}"
 
       - name: Upload Artifact temporário

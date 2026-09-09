@@ -71,7 +71,9 @@ ifeq ($(DETECTED_OS),macOS (Darwin))
 		iconutil -c icns AppIcon.iconset -o $(APP_BUNDLE)/Contents/Resources/AppIcon.icns >/dev/null 2>&1 || true; \
 		rm -rf AppIcon.iconset; \
 	fi
-	@echo Pacote $(APP_BUNDLE) criado com sucesso!
+	@echo Assinando $(APP_BUNDLE) com ad-hoc codesign...
+	@codesign --force --deep --sign - $(APP_BUNDLE) >/dev/null 2>&1 || true
+	@echo Pacote $(APP_BUNDLE) criado e assinado com sucesso!
 endif
 	@echo Build concluido com sucesso: $(BINARY)
 

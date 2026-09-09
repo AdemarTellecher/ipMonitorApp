@@ -4,16 +4,32 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 
 	_ "modernc.org/sqlite"
 )
 
-// ResolveDBPath determina dinamicamente o caminho do banco de dados SQLite
-// Ele garante que o banco seja criado/usado na pasta onde o executável foi iniciado
+// ResolveDBPath determina dinamicamente o caminho do banco de dados SQLite.
+// No macOS, se estiver dentro de um .app bundle (/Contents/MacOS/), utiliza ~/Library/Application Support/IPMonitor.
+// No Windows e outros sistemas, utiliza a pasta onde o executável foi iniciado (portátil).
 func ResolveDBPath(defaultName string) string {
 	if defaultName == "" {
-		defaultName = "ipmonitor.db"
+		defaultName = "ipMonitorDB.db"
 	}
+
+	if runtime.GOOS == "darwin" {
+		exePath, err := os.Executable()
+		if err == nil && strings.Contains(exePath, ".app/Contents/MacOS") {
+			homeDir, err := os.UserHomeDir()
+			if err == nil {
+				appSupportDir := filepath.Join(homeDir, "Library", "Application Support", "IPMonitor")
+				_ = os.MkdirAll(appSupportDir, 0755)
+				return filepath.Join(appSupportDir, defaultName)
+			}
+		}
+	}
+
 	exePath, err := os.Executable()
 	if err == nil {
 		exeDir := filepath.Dir(exePath)

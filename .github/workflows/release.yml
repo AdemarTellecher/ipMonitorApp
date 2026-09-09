@@ -119,7 +119,8 @@ jobs:
           cp AppIcon.icns "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
           rm -f AppIcon.icns
 
-          # 4. Assina o .app digitalmente (Ad-hoc Code Signing) para o Gatekeeper do macOS
+          # 4. Remove atributos estendidos pré-existentes e assina o .app digitalmente (Ad-hoc)
+          xattr -cr "$APP_BUNDLE"
           codesign --force --deep --sign - "$APP_BUNDLE"
           codesign --verify --deep --strict "$APP_BUNDLE"
 

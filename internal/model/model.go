@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 
 	_ "modernc.org/sqlite"
 )
@@ -19,14 +18,11 @@ func ResolveDBPath(defaultName string) string {
 	}
 
 	if runtime.GOOS == "darwin" {
-		exePath, err := os.Executable()
-		if err == nil && strings.Contains(exePath, ".app/Contents/MacOS") {
-			homeDir, err := os.UserHomeDir()
-			if err == nil {
-				appSupportDir := filepath.Join(homeDir, "Library", "Application Support", "IPMonitor")
-				_ = os.MkdirAll(appSupportDir, 0755)
-				return filepath.Join(appSupportDir, defaultName)
-			}
+		homeDir, err := os.UserHomeDir()
+		if err == nil {
+			appSupportDir := filepath.Join(homeDir, "Library", "Application Support", "IPMonitor")
+			_ = os.MkdirAll(appSupportDir, 0755)
+			return filepath.Join(appSupportDir, defaultName)
 		}
 	}
 
@@ -215,8 +211,13 @@ func (repo *IPRepository) List() ([]IPDevice, error) {
 	var devices []IPDevice
 	for rows.Next() {
 		var d IPDevice
-		_ = rows.Scan(&d.ID, &d.IP, &d.Status, &d.Name, &d.Method, &d.ThresholdMs, &d.UUID)
+		if err := rows.Scan(&d.ID, &d.IP, &d.Status, &d.Name, &d.Method, &d.ThresholdMs, &d.UUID); err != nil {
+			return nil, err
+		}
 		devices = append(devices, d)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return devices, nil
 }

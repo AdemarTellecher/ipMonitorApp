@@ -77,11 +77,20 @@ function renderHosts(ips) {
             const isSelected = selectedDevice && selectedDevice.id === device.id;
             const row = document.createElement('div');
             row.className = `host-row ${isSelected ? 'selected' : ''}`;
-            row.onclick = () => selectDevice(device);
-            row.ondblclick = () => {
+            row.dataset.id = device.id;
+            
+            // Clique simples seleciona/deseleciona; Duplo clique abre diretamente a edição
+            row.addEventListener('click', (e) => {
                 selectDevice(device);
+            });
+
+            row.addEventListener('dblclick', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                selectedDevice = device;
+                updateSelectedRowUI();
                 openEditModal();
-            };
+            });
 
             const badgeClass = isOnline ? 'online' : (isOffline ? 'offline' : 'unknown');
 
@@ -114,6 +123,20 @@ function renderHosts(ips) {
     updateActionButtonsState();
 }
 
+// Atualiza visualmente a classe 'selected' nas linhas existentes sem recriar o DOM
+function updateSelectedRowUI() {
+    const rows = hostsList.querySelectorAll('.host-row');
+    rows.forEach(r => {
+        const rowId = parseInt(r.dataset.id, 10);
+        if (selectedDevice && rowId === selectedDevice.id) {
+            r.classList.add('selected');
+        } else {
+            r.classList.remove('selected');
+        }
+    });
+    updateActionButtonsState();
+}
+
 // Atualiza o estado dos botões de ação sensíveis à seleção (Editar e Remover)
 function updateActionButtonsState() {
     const hasSelection = Boolean(selectedDevice);
@@ -126,14 +149,14 @@ function updateActionButtonsState() {
     }
 }
 
-// Seleciona um dispositivo para ação
+// Seleciona um dispositivo para ação mantendo o DOM estável para cliques duplos rápidos
 function selectDevice(device) {
     if (selectedDevice && selectedDevice.id === device.id) {
         selectedDevice = null;
     } else {
         selectedDevice = device;
     }
-    renderHosts(currentIps);
+    updateSelectedRowUI();
 }
 
 // Chamadas Go via rota HTTP interna /api/...

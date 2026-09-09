@@ -93,12 +93,12 @@ body {
    Barra de Título (Titlebar)
    -------------------------------------------------------------------------- */
 .titlebar {
-    height: 38px;
+    height: 42px;
     background: var(--bg-titlebar);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 14px;
+    padding: 0 16px;
     border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0;
     -webkit-app-region: drag;
@@ -107,12 +107,12 @@ body {
 .brand {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
 }
 
 .brand-logo {
-    width: 22px;
-    height: 22px;
+    width: 25px;
+    height: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -124,15 +124,15 @@ body {
 }
 
 .brand-title {
-    font-size: 14px;
+    font-size: 15.5px;
     font-weight: 600;
     letter-spacing: 0.2px;
 }
 
 .brand-tag {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--text-dim);
-    margin-left: 2px;
+    margin-left: 3px;
     font-weight: 500;
 }
 
@@ -143,13 +143,13 @@ body {
 .theme-toggle-btn {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     background: transparent;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
     color: var(--text-secondary);
-    padding: 4px 10px;
-    font-size: 12px;
+    padding: 5px 11px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -174,13 +174,13 @@ body {
    Barra Lateral (Sidebar)
    -------------------------------------------------------------------------- */
 .sidebar {
-    width: 66px;
+    width: 76px;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 10px 0;
+    padding: 12px 0;
     flex-shrink: 0;
     position: relative;
     z-index: 100;
@@ -190,8 +190,8 @@ body {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 0 6px;
+    gap: 8px;
+    padding: 0 7px;
 }
 
 .nav-item {
@@ -199,13 +199,13 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 8px 4px 6px;
+    padding: 10px 4px 8px;
     border-radius: var(--radius-md);
     cursor: pointer;
     color: var(--text-secondary);
     transition: all 0.16s ease;
     position: relative;
-    gap: 4px;
+    gap: 5px;
 }
 
 .nav-item:hover {
@@ -393,18 +393,19 @@ body.light-theme #navRefresh:hover:not(.disabled) {
 }
 
 .nav-icon {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .nav-label {
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 12.5px;
+    font-weight: 600;
     text-align: center;
     white-space: nowrap;
+    letter-spacing: 0.1px;
 }
 
 /* --------------------------------------------------------------------------
@@ -1228,14 +1229,14 @@ body.light-theme .detail-tag {
    Rodapé do Sistema
    -------------------------------------------------------------------------- */
 .system-footer {
-    height: 30px;
+    height: 34px;
     background: var(--bg-titlebar);
     border-top: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 14px;
-    font-size: 11.5px;
+    padding: 0 16px;
+    font-size: 12.5px;
     color: var(--text-dim);
     flex-shrink: 0;
 }
@@ -1243,15 +1244,15 @@ body.light-theme .detail-tag {
 .footer-indicator {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
 }
 
 .pulse-beacon {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: var(--accent-green);
-    box-shadow: 0 0 6px var(--accent-green);
+    box-shadow: 0 0 8px var(--accent-green);
 }
 
 /* --------------------------------------------------------------------------

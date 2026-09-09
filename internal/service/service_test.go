@@ -187,3 +187,29 @@ func TestMonitorService_EditIP(t *testing.T) {
 		t.Fatalf("Esperava falha ao tentar duplicar host existente")
 	}
 }
+
+func TestMonitorService_UpdateAllStatuses(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "test.db")
+
+	repo, err := model.NewRepository(dbPath)
+	if err != nil {
+		t.Fatalf("Erro ao criar repo de teste: %v", err)
+	}
+	defer repo.Close()
+
+	svc := service.NewMonitorService(repo)
+
+	_ = svc.AddIP("127.0.0.1")
+	_ = svc.AddIP("192.0.2.1") // IP RFC 5737 de teste não roteável (deve ficar offline rapidamente)
+
+	updated, err := svc.UpdateAllStatuses()
+	if err != nil {
+		t.Fatalf("UpdateAllStatuses falhou: %v", err)
+	}
+
+	if len(updated) != 2 {
+		t.Errorf("Esperava 2 hosts atualizados, obteve %d", len(updated))
+	}
+}
+

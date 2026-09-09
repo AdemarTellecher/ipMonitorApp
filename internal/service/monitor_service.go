@@ -7,7 +7,9 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/AdemarTellecher/ipmonitorapp/internal/model"
@@ -196,16 +198,42 @@ func (s *MonitorService) EditIPWithDetails(id int, newIP, name, method string, t
 	return Result{Success: true, Message: "Host atualizado com sucesso"}
 }
 
-// UpdateAllStatuses executa o ping em todos os IPs cadastrados e retorna a lista atualizada
+// UpdateAllStatuses executa a verificação em paralelo em todos os IPs cadastrados e retorna a lista atualizada
 func (s *MonitorService) UpdateAllStatuses() ([]model.IPDevice, error) {
 	devices, err := s.Repo.List()
 	if err != nil {
 		return nil, err
 	}
-	for _, d := range devices {
-		status := checkIPOnline(d.IP)
-		_ = s.Repo.UpdateStatus(d.ID, status)
+
+	type statusUpdate struct {
+		id     int
+		status string
 	}
+
+	// Executa as checagens com concorrência controlada para respostas ultrarrápidas
+	updatesChan := make(chan statusUpdate, len(devices))
+	sem := make(chan struct{}, 20) // limite de 20 conexões simultâneas
+
+	var wg sync.WaitGroup
+	for _, d := range devices {
+		wg.Add(1)
+		go func(dev model.IPDevice) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			st := checkIPOnline(dev.IP)
+			updatesChan <- statusUpdate{id: dev.ID, status: st}
+		}(d)
+	}
+
+	wg.Wait()
+	close(updatesChan)
+
+	for up := range updatesChan {
+		_ = s.Repo.UpdateStatus(up.id, up.status)
+	}
+
 	return s.Repo.List()
 }
 
@@ -390,11 +418,19 @@ func checkIPOnline(target string) string {
 		return "Offline"
 	}
 
+	// 1. Tentativa via go-ping (ICMP direto)
 	pinger, err := ping.NewPinger(target)
 	if err == nil {
 		pinger.Count = 1
-		pinger.Timeout = 2 * time.Second
-		pinger.SetPrivileged(true)
+		pinger.Timeout = 1500 * time.Millisecond
+		// No Windows é obrigatório Privileged = true para sockets ICMP.
+		// No macOS (Darwin) e Linux sem root, Privileged deve ser false (usa sockets UDP ICMP unprivileged).
+		if runtime.GOOS == "windows" {
+			pinger.SetPrivileged(true)
+		} else {
+			pinger.SetPrivileged(false)
+		}
+
 		runErr := pinger.Run()
 		if runErr == nil {
 			stats := pinger.Statistics()
@@ -404,8 +440,15 @@ func checkIPOnline(target string) string {
 		}
 	}
 
-	for _, port := range []string{"443", "80"} {
-		conn, dialErr := net.DialTimeout("tcp", net.JoinHostPort(target, port), 1500*time.Millisecond)
+	// 2. Fallback para ping nativo do sistema operacional (macOS / Linux / Windows)
+	// Essencial no macOS onde o utilitário `/sbin/ping` possui setuid-root e sempre tem permissão ICMP
+	if pingSystemCommand(target) {
+		return "Online"
+	}
+
+	// 3. Fallback para portas TCP comuns de serviços (80, 443, 8080, 22)
+	for _, port := range []string{"443", "80", "8080", "22"} {
+		conn, dialErr := net.DialTimeout("tcp", net.JoinHostPort(target, port), 1000*time.Millisecond)
 		if dialErr == nil {
 			_ = conn.Close()
 			return "Online"

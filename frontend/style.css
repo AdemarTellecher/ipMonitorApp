@@ -734,6 +734,10 @@ body.light-theme .btn-modal-cancel:hover {
     border-bottom: 1px solid var(--border-subtle);
 }
 
+.hosts-table-head .head-ip {
+    padding-left: 24px;
+}
+
 .hosts-table-body {
     flex: 1;
     overflow-y: auto;
@@ -779,73 +783,181 @@ body.light-theme .hosts-table-body::-webkit-scrollbar-thumb:hover {
     background: rgba(2, 132, 199, 0.45);
 }
 
-.host-row {
+/* Cartão do Host com Suporte a Detalhes Expandíveis */
+.host-item-card {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 10px;
+    flex-direction: column;
     border-radius: var(--radius-md);
     background: rgba(255, 255, 255, 0.015);
     border: 1px solid transparent;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-    transition: all 0.14s ease;
+    transition: all 0.16s ease;
+    overflow: hidden;
+    margin-bottom: 2px;
 }
 
-body.light-theme .host-row {
+body.light-theme .host-item-card {
     background: #ffffff;
     border-color: #f1f5f9;
 }
 
-.host-row:hover {
+.host-item-card:hover {
     background: var(--bg-card-hover);
     border-color: var(--border-card);
 }
 
-.host-row.selected {
+.host-item-card.selected {
     background: var(--bg-card-selected);
     border-color: var(--accent-blue);
 }
 
-body.light-theme .host-row.selected {
+body.light-theme .host-item-card.selected {
     background: #dbeafe; /* Azul suave e com alto contraste contra o fundo branco */
     border-color: #2563eb; /* Borda azul viva e bem perceptível */
     box-shadow: 0 0 0 1px #2563eb, 0 2px 8px rgba(37, 99, 235, 0.15);
 }
 
+.host-main-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
 .host-ip-col {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 12.5px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
-body.light-theme .host-row.selected .host-ip-col {
-    color: #1d4ed8; /* Cor do texto destacada em azul escuro no item selecionado */
+body.light-theme .host-item-card.selected .host-ip-col {
+    color: #1d4ed8;
     font-weight: 700;
 }
 
-.host-radio-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--text-dim);
-    transition: all 0.15s;
+/* Seta Expansora (Chevron) Maior e Elegante */
+.host-expand-btn {
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 4px;
+    margin-right: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: var(--text-dim);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.host-row.selected .host-radio-dot {
-    background: var(--accent-blue);
-    box-shadow: 0 0 6px var(--accent-blue);
+.host-expand-btn:hover {
+    color: var(--accent-blue);
+    background: rgba(64, 181, 255, 0.12);
 }
 
-body.light-theme .host-row.selected .host-radio-dot {
-    background: #2563eb;
-    box-shadow: 0 0 6px rgba(37, 99, 235, 0.8);
-    transform: scale(1.3);
+.host-expand-btn svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.25s ease;
+}
+
+.host-item-card.is-expanded .host-expand-btn svg {
+    transform: rotate(90deg);
+    color: var(--accent-blue);
+}
+
+body.light-theme .host-item-card.is-expanded .host-expand-btn svg {
+    color: #2563eb;
+}
+
+/* Gaveta Deslizante de Detalhes do Dispositivo */
+.host-details-drawer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease, opacity 0.25s ease;
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.22);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 0 12px;
+}
+
+body.light-theme .host-details-drawer {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.host-item-card.is-expanded .host-details-drawer {
+    max-height: 220px;
+    opacity: 1;
+    padding: 10px 14px 12px 34px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    font-size: 11.5px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-label {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    font-weight: 600;
+}
+
+.detail-value {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 11.5px;
+    word-break: break-word;
+}
+
+.detail-value.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #38bdf8;
+}
+
+body.light-theme .detail-value.mono {
+    color: #0284c7;
+}
+
+.detail-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    width: fit-content;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+body.light-theme .detail-tag {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
 }
 
 .status-badge {

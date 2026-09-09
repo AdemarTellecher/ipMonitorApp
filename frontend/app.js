@@ -62,6 +62,44 @@ function renderHosts(ips) {
     let onlineCount = 0;
     let offlineCount = 0;
 
+// Conjunto que armazena os IDs dos hosts atualmente expandidos
+const expandedHostIds = new Set();
+
+// Alterna o estado expandido/recolhido de um host
+function toggleExpandHost(event, deviceId) {
+    if (event) {
+        event.stopPropagation();
+    }
+    const card = document.getElementById(`host-card-${deviceId}`);
+    if (expandedHostIds.has(deviceId)) {
+        expandedHostIds.delete(deviceId);
+        if (card) card.classList.remove('is-expanded');
+    } else {
+        expandedHostIds.add(deviceId);
+        if (card) card.classList.add('is-expanded');
+    }
+}
+
+// Renderiza a lista de hosts na tabela Fluent (Priorizando dispositivos Offline no topo)
+function renderHosts(ips) {
+    currentIps = (ips || []).slice().sort((a, b) => {
+        // Prioridade: Offline (0) > Desconhecido/outros (1) > Online (2)
+        const getPriority = (status) => {
+            if (status === 'Offline') return 0;
+            if (status === 'Online') return 2;
+            return 1;
+        };
+
+        const diff = getPriority(a.status) - getPriority(b.status);
+        if (diff !== 0) return diff;
+
+        // Desempate alfanumérico pelo IP/Host
+        return (a.ip || '').localeCompare(b.ip || '', undefined, { numeric: true, sensitivity: 'base' });
+    });
+
+    let onlineCount = 0;
+    let offlineCount = 0;
+
     hostsList.innerHTML = '';
 
     if (currentIps.length === 0) {
@@ -75,16 +113,78 @@ function renderHosts(ips) {
             if (isOffline) offlineCount++;
 
             const isSelected = selectedDevice && selectedDevice.id === device.id;
-            const row = document.createElement('div');
-            row.className = `host-row ${isSelected ? 'selected' : ''}`;
-            row.dataset.id = device.id;
-            
-            // Clique simples seleciona/deseleciona; Duplo clique abre diretamente a edição
-            row.addEventListener('click', (e) => {
+            const isExpanded = expandedHostIds.has(device.id);
+
+            const card = document.createElement('div');
+            card.className = `host-item-card ${isSelected ? 'selected' : ''} ${isExpanded ? 'is-expanded' : ''}`;
+            card.id = `host-card-${device.id}`;
+            card.dataset.id = device.id;
+
+            const badgeClass = isOnline ? 'online' : (isOffline ? 'offline' : 'unknown');
+
+            // Formatação dos metadados ricos do host
+            const hostName = device.name ? device.name : 'Não especificado (Host manual)';
+            const hostMethod = device.method ? device.method : 'PING';
+            const thresholdMs = device.thresholdMs ? `${device.thresholdMs} ms` : '2000 ms';
+            const hostUUID = device.uuid ? device.uuid : '—';
+
+            card.innerHTML = `
+                <div class="host-main-row">
+                    <div class="host-ip-col">
+                        <button class="host-expand-btn" title="Expandir/Recolher Detalhes" type="button">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </button>
+                        <span>${device.ip}</span>
+                    </div>
+                    <div>
+                        <span class="status-badge ${badgeClass}">
+                            <span class="status-pip"></span>
+                            ${device.status}
+                        </span>
+                    </div>
+                </div>
+                <div class="host-details-drawer">
+                    <div class="details-grid">
+                        <div class="detail-item full-width">
+                            <span class="detail-label">Nome / Identificação</span>
+                            <span class="detail-value" style="${!device.name ? 'color: var(--text-dim); font-style: italic;' : ''}">${hostName}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Método de Teste</span>
+                            <span class="detail-tag">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                ${hostMethod} (ICMP)
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Limite Timeout</span>
+                            <span class="detail-value mono">${thresholdMs}</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="detail-label">ID do Sistema / UUID</span>
+                            <span class="detail-value mono">${hostUUID}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const mainRow = card.querySelector('.host-main-row');
+            const expandBtn = card.querySelector('.host-expand-btn');
+
+            // Clique na setinha alterna expansão
+            expandBtn.addEventListener('click', (e) => {
+                toggleExpandHost(e, device.id);
+            });
+
+            // Clique simples na linha seleciona/deseleciona
+            mainRow.addEventListener('click', () => {
                 selectDevice(device);
             });
 
-            row.addEventListener('dblclick', (e) => {
+            // Duplo clique rápido na linha abre diretamente a edição
+            mainRow.addEventListener('dblclick', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 selectedDevice = device;
@@ -92,21 +192,7 @@ function renderHosts(ips) {
                 openEditModal();
             });
 
-            const badgeClass = isOnline ? 'online' : (isOffline ? 'offline' : 'unknown');
-
-            row.innerHTML = `
-                <div class="host-ip-col">
-                    <span class="host-radio-dot"></span>
-                    <span>${device.ip}</span>
-                </div>
-                <div>
-                    <span class="status-badge ${badgeClass}">
-                        <span class="status-pip"></span>
-                        ${device.status}
-                    </span>
-                </div>
-            `;
-            hostsList.appendChild(row);
+            hostsList.appendChild(card);
         });
     }
 
@@ -123,15 +209,15 @@ function renderHosts(ips) {
     updateActionButtonsState();
 }
 
-// Atualiza visualmente a classe 'selected' nas linhas existentes sem recriar o DOM
+// Atualiza visualmente a classe 'selected' nos cards existentes sem recriar o DOM
 function updateSelectedRowUI() {
-    const rows = hostsList.querySelectorAll('.host-row');
-    rows.forEach(r => {
-        const rowId = parseInt(r.dataset.id, 10);
+    const cards = hostsList.querySelectorAll('.host-item-card');
+    cards.forEach(c => {
+        const rowId = parseInt(c.dataset.id, 10);
         if (selectedDevice && rowId === selectedDevice.id) {
-            r.classList.add('selected');
+            c.classList.add('selected');
         } else {
-            r.classList.remove('selected');
+            c.classList.remove('selected');
         }
     });
     updateActionButtonsState();

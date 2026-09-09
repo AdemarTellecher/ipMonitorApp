@@ -170,47 +170,72 @@ func (s *MonitorService) UpdateAllStatuses() ([]model.IPDevice, error) {
 	return s.Repo.List()
 }
 
-// ImportJSONContent processa o texto JSON recebido do frontend e insere os IPs e Hostnames
+// ImportJSONContent processa o texto JSON recebido do frontend e insere os IPs, Hostnames e metadados
 func (s *MonitorService) ImportJSONContent(content string) Result {
 	var rawData interface{}
 	if err := json.Unmarshal([]byte(content), &rawData); err != nil {
 		return Result{Success: false, Error: "Formato JSON inválido"}
 	}
 
-	var candidateStrings []string
+	type Candidate struct {
+		Raw         string
+		Name        string
+		Method      string
+		ThresholdMs int
+		UUID        string
+	}
+
+	var candidates []Candidate
+
+	parseObj := func(obj map[string]interface{}) {
+		var rawHost string
+		for _, key := range []string{"url", "ip", "host", "address", "hostname"} {
+			if val, found := obj[key]; found {
+				if strVal, ok := val.(string); ok && strVal != "" {
+					rawHost = strVal
+					break
+				}
+			}
+		}
+		if rawHost == "" {
+			return
+		}
+
+		c := Candidate{Raw: rawHost, Method: "PING", ThresholdMs: 2000}
+		if nameVal, ok := obj["name"].(string); ok {
+			c.Name = nameVal
+		}
+		if idVal, ok := obj["id"].(string); ok {
+			c.UUID = idVal
+		}
+		if methodVal, ok := obj["method"].(string); ok && methodVal != "" {
+			c.Method = methodVal
+		}
+		if thVal, ok := obj["thresholdMs"].(float64); ok && thVal > 0 {
+			c.ThresholdMs = int(thVal)
+		}
+
+		candidates = append(candidates, c)
+	}
 
 	switch v := rawData.(type) {
 	case []interface{}:
 		for _, item := range v {
 			if str, ok := item.(string); ok {
-				candidateStrings = append(candidateStrings, str)
+				candidates = append(candidates, Candidate{Raw: str, Method: "PING", ThresholdMs: 2000})
 			} else if obj, ok := item.(map[string]interface{}); ok {
-				for _, key := range []string{"ip", "host", "url", "address", "hostname"} {
-					if val, found := obj[key]; found {
-						if strVal, ok := val.(string); ok {
-							candidateStrings = append(candidateStrings, strVal)
-							break
-						}
-					}
-				}
+				parseObj(obj)
 			}
 		}
 	case map[string]interface{}:
-		for _, key := range []string{"ips", "hosts", "sites", "devices", "servers"} {
+		for _, key := range []string{"sites", "ips", "hosts", "devices", "servers"} {
 			if list, found := v[key]; found {
 				if arr, ok := list.([]interface{}); ok {
 					for _, item := range arr {
 						if str, ok := item.(string); ok {
-							candidateStrings = append(candidateStrings, str)
+							candidates = append(candidates, Candidate{Raw: str, Method: "PING", ThresholdMs: 2000})
 						} else if obj, ok := item.(map[string]interface{}); ok {
-							for _, k := range []string{"ip", "host", "url", "address", "hostname"} {
-								if val, found := obj[k]; found {
-									if strVal, ok := val.(string); ok {
-										candidateStrings = append(candidateStrings, strVal)
-										break
-									}
-								}
-							}
+							parseObj(obj)
 						}
 					}
 				}
@@ -218,25 +243,32 @@ func (s *MonitorService) ImportJSONContent(content string) Result {
 		}
 	}
 
-	var validIPs []string
+	var validDevices []model.IPDevice
 	seen := make(map[string]bool)
 
-	for _, raw := range candidateStrings {
-		cleaned := cleanHostOrIP(raw)
+	for _, c := range candidates {
+		cleaned := cleanHostOrIP(c.Raw)
 		if cleaned == "" || seen[cleaned] {
 			continue
 		}
 		if isValidHostOrIP(cleaned) {
-			validIPs = append(validIPs, cleaned)
+			validDevices = append(validDevices, model.IPDevice{
+				IP:          cleaned,
+				Status:      "Desconhecido",
+				Name:        c.Name,
+				Method:      c.Method,
+				ThresholdMs: c.ThresholdMs,
+				UUID:        c.UUID,
+			})
 			seen[cleaned] = true
 		}
 	}
 
-	if len(validIPs) == 0 {
+	if len(validDevices) == 0 {
 		return Result{Success: false, Error: "Nenhum endereço IP ou Hostname válido encontrado"}
 	}
 
-	count, err := s.Repo.AddMultiple(validIPs)
+	count, err := s.Repo.AddMultipleDevices(validDevices)
 	if err != nil {
 		return Result{Success: false, Error: err.Error()}
 	}

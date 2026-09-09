@@ -182,6 +182,8 @@ body {
     justify-content: space-between;
     padding: 10px 0;
     flex-shrink: 0;
+    position: relative;
+    z-index: 100;
 }
 
 .nav-group {
@@ -239,6 +241,112 @@ body.light-theme .nav-item.active {
 .nav-item.disabled {
     opacity: 0.35;
     cursor: not-allowed;
+}
+
+/* Tooltip Popover Flutuante no Hover do Botão Sobre */
+.nav-item.has-tooltip {
+    position: relative;
+}
+
+.about-tooltip-popover {
+    position: absolute;
+    left: calc(100% + 12px);
+    bottom: 2px;
+    width: 230px;
+    background: #0f172a;
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-md);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(64, 181, 255, 0.2);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-8px) scale(0.97);
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+    pointer-events: none;
+    z-index: 1100;
+}
+
+/* Seta indicadora (caret) apontando para o botão da sidebar */
+.about-tooltip-popover::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    bottom: 14px;
+    width: 10px;
+    height: 10px;
+    background: #0f172a;
+    border-left: 1px solid var(--border-card);
+    border-bottom: 1px solid var(--border-card);
+    transform: rotate(45deg);
+}
+
+.nav-item.has-tooltip:hover .about-tooltip-popover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0) scale(1);
+}
+
+body.light-theme .about-tooltip-popover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(2, 132, 199, 0.25);
+}
+
+body.light-theme .about-tooltip-popover::before {
+    background: #ffffff;
+    border-color: #cbd5e1;
+}
+
+.tooltip-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tooltip-badge {
+    background: rgba(64, 181, 255, 0.15);
+    color: var(--accent-blue);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+body.light-theme .tooltip-badge {
+    background: rgba(2, 132, 199, 0.12);
+    color: #0284c7;
+}
+
+.tooltip-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.tooltip-text {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    line-height: 1.35;
+    margin: 0;
+}
+
+.tooltip-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 2px 0;
+}
+
+.tooltip-techs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-weight: 600;
 }
 
 /* Destaque para o botão Varredura na Barra Lateral */

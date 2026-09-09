@@ -480,9 +480,6 @@ navEdit.addEventListener('click', () => {
     }
 });
 navRemove.addEventListener('click', handleRemove);
-navAbout.addEventListener('click', () => {
-    showToast('IP Monitor v2.3.1 • Wails v3 + Pure Go SQLite');
-});
 
 // Listener para eventos periódicos emitidos pelo backend Go (Wails v3)
 if (window.wails && window.wails.Events) {

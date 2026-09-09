@@ -29,7 +29,7 @@ Inspirado no design minimalista e moderno do Microsoft PC Manager, o **IP Monito
 - **Zero DLLs ou Pastas Externas**: Utiliza o WebView2 nativo do Windows, sem necessidade de arquivos `.dll` adicionais na pasta.
 - **SQLite Dinâmico e Portátil**: Detecta automaticamente a pasta de execução e cria/utiliza o banco `ipmonitor.db` localmente com migração transparente de schema.
 - **Painel Expansível de Detalhes**: Cada cartão possui uma seta (chevron) que expande uma gaveta com informações completas:
-  - **Nome / Identificação** amigável (ex: *RADAR-PA255 - KM3*)
+  - **Nome / Identificação** amigável (ex: *Site do PTT*)
   - **Método de Teste** (ICMP Ping / TCP)
   - **Limite de Timeout** configurado (ms)
   - **ID do Sistema / UUID** (gerado ou importado)
@@ -91,11 +91,11 @@ make info    # Exibe dados do ambiente, SO detectado e flags de compilação
      {
        "sites": [
          {
-           "name": "RADAR-PA255 - KM3 - Monte Alegre",
-           "url": "168.195.153.219",
+           "name": "ROTEADOR NA TORRE do KM3 - Saida para Fazendo PAMITAL",
+           "url": "[IP_ADDRESS]",
            "method": "PING",
            "thresholdMs": 2000,
-           "id": "B0CD4840-147C-4027-BAB0-87B74A6FE8F5"
+           "id": "01"
          }
        ]
      }

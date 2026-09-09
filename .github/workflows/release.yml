@@ -37,7 +37,7 @@ jobs:
             arch: arm64
             goarch: arm64
             binary_name: ipMonitorApp
-            asset_name: ipMonitorApp-darwin-arm64.tar.gz
+            asset_name: ipMonitorApp-darwin-arm64.zip
 
           # macOS Intel (amd64) via compilação nativa no runner macOS
           - os: darwin
@@ -45,7 +45,7 @@ jobs:
             arch: amd64
             goarch: amd64
             binary_name: ipMonitorApp
-            asset_name: ipMonitorApp-darwin-amd64.tar.gz
+            asset_name: ipMonitorApp-darwin-amd64.zip
 
     steps:
       - name: Checkout repositório
@@ -74,8 +74,8 @@ jobs:
           go build -ldflags="-s -w -H=windowsgui" -o ${{ matrix.binary_name }} .
           Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath ${{ matrix.asset_name }}
 
-      - name: Compilar Binário (Linux / macOS)
-        if: matrix.os != 'windows'
+      - name: Compilar Binário (Linux)
+        if: matrix.os == 'linux'
         env:
           CGO_ENABLED: '1'
           GOARCH: ${{ matrix.arch }}
@@ -83,6 +83,44 @@ jobs:
           go build -ldflags="-s -w" -o ${{ matrix.binary_name }} .
           chmod +x ${{ matrix.binary_name }}
           tar -czvf ${{ matrix.asset_name }} ${{ matrix.binary_name }}
+
+      - name: Compilar e Empacotar .app Bundle (macOS)
+        if: matrix.os == 'darwin'
+        env:
+          CGO_ENABLED: '1'
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          # 1. Compila o binário Go nativo
+          go build -ldflags="-s -w" -o ${{ matrix.binary_name }} .
+          chmod +x ${{ matrix.binary_name }}
+
+          # 2. Converte ícone PNG para .icns nativo do macOS usando iconutil
+          mkdir -p AppIcon.iconset
+          sips -z 16 16     internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_16x16.png
+          sips -z 32 32     internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_16x16@2x.png
+          sips -z 32 32     internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_32x32.png
+          sips -z 64 64     internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_32x32@2x.png
+          sips -z 128 128   internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_128x128.png
+          sips -z 256 256   internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_128x128@2x.png
+          sips -z 256 256   internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_256x256.png
+          sips -z 512 512   internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_256x256@2x.png
+          sips -z 512 512   internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_512x512.png
+          sips -z 1024 1024 internal/assets/icons/app-icon.png --out AppIcon.iconset/icon_512x512@2x.png
+          iconutil -c icns AppIcon.iconset -o AppIcon.icns
+          rm -rf AppIcon.iconset
+
+          # 3. Monta a estrutura oficial do macOS .app
+          APP_BUNDLE="IP Monitor.app"
+          mkdir -p "$APP_BUNDLE/Contents/MacOS"
+          mkdir -p "$APP_BUNDLE/Contents/Resources"
+
+          cp "${{ matrix.binary_name }}" "$APP_BUNDLE/Contents/MacOS/${{ matrix.binary_name }}"
+          cp build/darwin/Info.plist "$APP_BUNDLE/Contents/Info.plist"
+          cp AppIcon.icns "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
+          rm -f AppIcon.icns
+
+          # 4. Compacta o .app em ZIP preservando permissões de execução
+          ditto -c -k --keepParent "$APP_BUNDLE" "${{ matrix.asset_name }}"
 
       - name: Upload Artifact temporário
         uses: actions/upload-artifact@v4

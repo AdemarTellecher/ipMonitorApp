@@ -45,26 +45,6 @@ function showToast(msg, duration = 2800) {
     }, duration);
 }
 
-// Renderiza a lista de hosts na tabela Fluent (Priorizando dispositivos Offline no topo)
-function renderHosts(ips) {
-    currentIps = (ips || []).slice().sort((a, b) => {
-        // Prioridade: Offline (0) > Desconhecido/outros (1) > Online (2)
-        const getPriority = (status) => {
-            if (status === 'Offline') return 0;
-            if (status === 'Online') return 2;
-            return 1;
-        };
-
-        const diff = getPriority(a.status) - getPriority(b.status);
-        if (diff !== 0) return diff;
-
-        // Desempate alfanumérico pelo IP/Host
-        return (a.ip || '').localeCompare(b.ip || '', undefined, { numeric: true, sensitivity: 'base' });
-    });
-
-    let onlineCount = 0;
-    let offlineCount = 0;
-
 // Conjunto que armazena os IDs dos hosts atualmente expandidos
 const expandedHostIds = new Set();
 

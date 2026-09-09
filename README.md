@@ -50,7 +50,7 @@ Inspirado no design minimalista e moderno do Microsoft PC Manager, o **IP Monito
 ## 🛠️ Requisitos de Desenvolvimento
 
 - **Go 1.25** ou superior
-- **Compilador C (GCC / MinGW-w64)** no Windows (necessário para o driver CGO do SQLite3)
+- **Go 100% Puro no Windows**: Não requer GCC, MinGW-w64, WinLibs ou CGo para compilar.
 - **WebView2 Runtime** (já incluído nativamente no Windows 10 e Windows 11)
 
 ---
@@ -60,14 +60,14 @@ Inspirado no design minimalista e moderno do Microsoft PC Manager, o **IP Monito
 O projeto conta com um **Makefile unificado** multiplataforma que detecta automaticamente o sistema operacional (Windows, Linux ou macOS):
 
 ```sh
-make build   # Compila o executável único e portátil
+make build   # Compila o executável único e portátil (CGO_ENABLED=0 no Windows)
 make test    # Executa todos os testes unitários do serviço
 make run     # Compila e inicia o aplicativo imediatamente
 make clean   # Remove executáveis e resíduos temporários de build
 make info    # Exibe dados do ambiente, SO detectado e flags de compilação
 ```
 
-> 💡 **Dica no Windows**: Usando MinGW-w64 (WinLibs), você pode executar `mingw32-make` ou `make`. As flags `-H=windowsgui` são aplicadas automaticamente para compilar sem console acoplado.
+> 💡 **Dica no Windows**: Você pode compilar diretamente com `make build` ou rodar nativamente `go build -ldflags="-s -w -H=windowsgui" -o ipMonitorApp.exe .` em qualquer terminal (PowerShell, CMD ou Git Bash) **sem nenhuma ferramenta C instalada**!
 
 ---
 

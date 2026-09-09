@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // ResolveDBPath determina dinamicamente o caminho do banco de dados SQLite
@@ -51,7 +51,7 @@ type IPRepository struct {
 }
 
 func NewRepository(dbFile string) (*IPRepository, error) {
-	db, err := sql.Open("sqlite3", dbFile)
+	db, err := sql.Open("sqlite", dbFile)
 	if err != nil {
 		return nil, err
 	}

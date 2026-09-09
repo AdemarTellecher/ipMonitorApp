@@ -69,7 +69,7 @@ jobs:
       - name: Compilar Binário (Windows)
         if: matrix.os == 'windows'
         env:
-          CGO_ENABLED: '1'
+          CGO_ENABLED: '0'
         run: |
           go build -ldflags="-s -w -H=windowsgui" -o ${{ matrix.binary_name }} .
           Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath ${{ matrix.asset_name }}

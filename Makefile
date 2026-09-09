@@ -13,11 +13,7 @@ ifeq ($(OS),Windows_NT)
     DETECTED_OS := Windows
     BINARY := $(APP_NAME).exe
     LDFLAGS := -s -w -H=windowsgui
-    export CGO_ENABLED := 1
-
-    # Inclui o MinGW GCC (WinLibs) e o binário do Go no PATH no ambiente Windows
-    WINLIBS_BIN := $(LOCALAPPDATA)/Microsoft/WinGet/Packages/BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe/mingw64/bin
-    export PATH := $(WINLIBS_BIN):$(USERPROFILE)/go/bin:$(PATH)
+    export CGO_ENABLED := 0
 
     RM_CMD = cmd /C if exist $(BINARY) del /Q /F $(BINARY)
     RUN_CMD = .\$(BINARY)

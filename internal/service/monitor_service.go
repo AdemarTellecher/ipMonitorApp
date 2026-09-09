@@ -105,7 +105,7 @@ func (s *MonitorService) ListIPs() ([]model.IPDevice, error) {
 	return s.Repo.List()
 }
 
-// AddIP valida e adiciona um novo IP ou Hostname/URL
+// AddIP valida, adiciona e testa imediatamente a conectividade do novo IP ou Hostname/URL
 func (s *MonitorService) AddIP(ip string) Result {
 	cleaned := cleanHostOrIP(ip)
 	if !isValidHostOrIP(cleaned) {
@@ -115,6 +115,19 @@ func (s *MonitorService) AddIP(ip string) Result {
 	if err != nil {
 		return Result{Success: false, Error: err.Error()}
 	}
+
+	// Executa checagem imediata de conectividade
+	status := checkIPOnline(cleaned)
+	devices, err := s.Repo.List()
+	if err == nil {
+		for _, d := range devices {
+			if d.IP == cleaned {
+				_ = s.Repo.UpdateStatus(d.ID, status)
+				break
+			}
+		}
+	}
+
 	return Result{Success: true, Message: "Host adicionado com sucesso"}
 }
 
@@ -227,6 +240,11 @@ func (s *MonitorService) ImportJSONContent(content string) Result {
 	if err != nil {
 		return Result{Success: false, Error: err.Error()}
 	}
+
+	// Dispara varredura dos hosts importados em segundo plano
+	go func() {
+		_, _ = s.UpdateAllStatuses()
+	}()
 
 	return Result{Success: true, Count: count}
 }

@@ -370,6 +370,16 @@ if (window.wails && window.wails.Events) {
     });
 }
 
+// Polling ativo no frontend para sincronização contínua de status em tempo real
+// Garante atualização na tela caso o backend termine uma varredura automática a cada 1 minuto
+setInterval(() => {
+    // Não recarrega a tabela se o usuário estiver com um modal de adição/edição aberto
+    if (!addIpModal.classList.contains('hidden')) {
+        return;
+    }
+    loadIps();
+}, 5000);
+
 // Inicia aplicação
 initTheme();
 loadIps();

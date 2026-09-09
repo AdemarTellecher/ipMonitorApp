@@ -92,7 +92,7 @@ make info    # Exibe dados do ambiente, SO detectado e flags de compilação
        "sites": [
          {
            "name": "ROTEADOR NA TORRE do KM3 - Saida para Fazendo PAMITAL",
-           "url": "[IP_ADDRESS]",
+           "url": "192.168.100.100",
            "method": "PING",
            "thresholdMs": 2000,
            "id": "01"

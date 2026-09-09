@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"os/exec"
 	"runtime"
 	"strings"
 	"sync"
@@ -457,25 +456,4 @@ func checkIPOnline(target string) string {
 	}
 
 	return "Offline"
-}
-
-// pingSystemCommand executa o utilitário nativo de ping do SO como fallback robusto
-func pingSystemCommand(target string) bool {
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "darwin":
-		// No macOS: -c 1 (1 pacote), -t 2 (timeout de 2 segundos), -W 1500 (espera até 1500ms)
-		cmd = exec.Command("ping", "-c", "1", "-t", "2", target)
-	case "linux":
-		// No Linux: -c 1 (1 pacote), -W 2 (timeout de 2 segundos)
-		cmd = exec.Command("ping", "-c", "1", "-W", "2", target)
-	case "windows":
-		// No Windows: -n 1 (1 pacote), -w 1500 (espera de 1500ms)
-		cmd = exec.Command("ping", "-n", "1", "-w", "1500", target)
-	default:
-		cmd = exec.Command("ping", "-c", "1", target)
-	}
-
-	err := cmd.Run()
-	return err == nil
 }

@@ -215,6 +215,18 @@ func (repo *IPRepository) UpdateIP(id int, newIP string) error {
 	return err
 }
 
+func (repo *IPRepository) UpdateDevice(id int, newIP, name, method string, thresholdMs int, uuid string) error {
+	if method == "" {
+		method = "PING"
+	}
+	if thresholdMs <= 0 {
+		thresholdMs = 2000
+	}
+	_, err := repo.DB.Exec("UPDATE ips SET ip=?, name=?, method=?, threshold_ms=?, uuid=?, status='Desconhecido' WHERE id=?",
+		newIP, name, method, thresholdMs, uuid, id)
+	return err
+}
+
 func (repo *IPRepository) Close() error {
 	return repo.DB.Close()
 }

@@ -36,7 +36,7 @@
                     </svg>
                 </div>
                 <span class="brand-title">IP Monitor</span>
-                <span class="brand-tag">v2.2.1 • Wails v3</span>
+                <span class="brand-tag">v2.3.0 • Wails v3</span>
             </div>
             <div class="titlebar-actions">
                 <button id="themeToggleBtn" class="theme-toggle-btn" title="Alternar entre tema escuro e claro">
@@ -167,14 +167,39 @@
                                 <span class="modal-title" id="modalTitle">Cadastrar Novo Dispositivo</span>
                                 <button id="modalCloseXBtn" class="modal-close-x" title="Fechar">&times;</button>
                             </div>
-                            <p class="modal-desc" id="modalDesc">Digite o IP ou hostname para iniciar o monitoramento contínuo via ICMP Ping.</p>
-                            <div class="input-wrapper modal-input-wrapper">
-                                <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                                </svg>
-                                <input type="text" id="ipInput" placeholder="Ex: 192.168.1.1 ou google.com.br" class="ip-field" autocomplete="off" spellcheck="false">
+                            <p class="modal-desc" id="modalDesc">Preencha os dados do dispositivo para o monitoramento contínuo.</p>
+
+                            <div class="modal-form-grid">
+                                <div class="form-group full-width">
+                                    <label class="form-label" for="ipInput">Endereço IP ou Hostname <span class="required">*</span></label>
+                                    <div class="input-wrapper modal-input-wrapper">
+                                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="11" cy="11" r="8"/>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                        </svg>
+                                        <input type="text" id="ipInput" placeholder="Ex: 192.168.1.1 ou google.com.br" class="ip-field" autocomplete="off" spellcheck="false">
+                                    </div>
+                                </div>
+
+                                <div class="form-group full-width">
+                                    <label class="form-label" for="nameInput">Nome / Identificação (Opcional)</label>
+                                    <input type="text" id="nameInput" placeholder="Ex: RADAR-PA255 - KM3" class="modal-text-field" autocomplete="off" spellcheck="false">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="methodSelect">Método de Teste</label>
+                                    <select id="methodSelect" class="modal-select-field">
+                                        <option value="PING" selected>PING (ICMP)</option>
+                                        <option value="TCP">TCP (Portas 80/443)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="thresholdInput">Timeout Limite (ms)</label>
+                                    <input type="number" id="thresholdInput" placeholder="2000" value="2000" min="100" max="10000" step="100" class="modal-text-field">
+                                </div>
                             </div>
+
                             <div class="modal-actions">
                                 <button id="cancelAddBtn" class="btn-action btn-modal-cancel">Cancelar</button>
                                 <button id="addBtn" class="btn-action btn-modal-confirm">

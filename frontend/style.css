@@ -588,19 +588,86 @@ body.light-theme .modal-close-x:hover {
     font-size: 11px;
     color: var(--text-secondary);
     line-height: 1.35;
-    margin: 0;
+    margin: 0 0 2px 0;
+}
+
+.modal-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+    width: 100%;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.form-label .required {
+    color: var(--accent-red);
+}
+
+.modal-text-field,
+.modal-select-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-md);
+    padding: 6px 10px;
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11.5px;
+    outline: none;
+    transition: all 0.16s ease;
+}
+
+.modal-select-field {
+    cursor: pointer;
+    background-color: var(--bg-card);
+}
+
+body.light-theme .modal-text-field,
+body.light-theme .modal-select-field {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.modal-text-field:focus,
+.modal-select-field:focus {
+    border-color: var(--accent-blue);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(64, 181, 255, 0.2);
+}
+
+body.light-theme .modal-text-field:focus,
+body.light-theme .modal-select-field:focus {
+    border-color: #0284c7;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
 }
 
 .modal-input-wrapper {
     width: 100%;
-    margin-top: 2px;
+    margin-top: 0;
 }
 
 .modal-actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 .card-box {

@@ -46,13 +46,17 @@ func (s *MonitorService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	case "add":
 		var req struct {
-			IP string `json:"ip"`
+			IP          string `json:"ip"`
+			Name        string `json:"name"`
+			Method      string `json:"method"`
+			ThresholdMs int    `json:"thresholdMs"`
+			UUID        string `json:"uuid"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			_ = json.NewEncoder(w).Encode(Result{Success: false, Error: "corpo da requisição inválido"})
 			return
 		}
-		res := s.AddIP(req.IP)
+		res := s.AddIPWithDetails(req.IP, req.Name, req.Method, req.ThresholdMs, req.UUID)
 		_ = json.NewEncoder(w).Encode(res)
 
 	case "remove":
@@ -68,14 +72,18 @@ func (s *MonitorService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	case "edit":
 		var req struct {
-			ID    int    `json:"id"`
-			NewIP string `json:"newIp"`
+			ID          int    `json:"id"`
+			NewIP       string `json:"newIp"`
+			Name        string `json:"name"`
+			Method      string `json:"method"`
+			ThresholdMs int    `json:"thresholdMs"`
+			UUID        string `json:"uuid"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			_ = json.NewEncoder(w).Encode(Result{Success: false, Error: "corpo da requisição inválido"})
 			return
 		}
-		res := s.EditIP(req.ID, req.NewIP)
+		res := s.EditIPWithDetails(req.ID, req.NewIP, req.Name, req.Method, req.ThresholdMs, req.UUID)
 		_ = json.NewEncoder(w).Encode(res)
 
 	case "update":
@@ -107,11 +115,30 @@ func (s *MonitorService) ListIPs() ([]model.IPDevice, error) {
 
 // AddIP valida, adiciona e testa imediatamente a conectividade do novo IP ou Hostname/URL
 func (s *MonitorService) AddIP(ip string) Result {
+	return s.AddIPWithDetails(ip, "", "PING", 2000, "")
+}
+
+// AddIPWithDetails valida, adiciona com metadados ricos e testa imediatamente a conectividade
+func (s *MonitorService) AddIPWithDetails(ip, name, method string, thresholdMs int, uuid string) Result {
 	cleaned := cleanHostOrIP(ip)
 	if !isValidHostOrIP(cleaned) {
 		return Result{Success: false, Error: fmt.Sprintf("Endereço IP ou Hostname inválido: %s", ip)}
 	}
-	err := s.Repo.Add(cleaned)
+	if method == "" {
+		method = "PING"
+	}
+	if thresholdMs <= 0 {
+		thresholdMs = 2000
+	}
+
+	err := s.Repo.AddDevice(model.IPDevice{
+		IP:          cleaned,
+		Status:      "Desconhecido",
+		Name:        name,
+		Method:      method,
+		ThresholdMs: thresholdMs,
+		UUID:        uuid,
+	})
 	if err != nil {
 		return Result{Success: false, Error: err.Error()}
 	}
@@ -142,11 +169,23 @@ func (s *MonitorService) RemoveIP(ip string) Result {
 
 // EditIP valida, atualiza o host e testa a conectividade imediatamente
 func (s *MonitorService) EditIP(id int, newIP string) Result {
+	return s.EditIPWithDetails(id, newIP, "", "PING", 2000, "")
+}
+
+// EditIPWithDetails valida, atualiza os dados completos do host e testa a conectividade imediatamente
+func (s *MonitorService) EditIPWithDetails(id int, newIP, name, method string, thresholdMs int, uuid string) Result {
 	cleaned := cleanHostOrIP(newIP)
 	if !isValidHostOrIP(cleaned) {
 		return Result{Success: false, Error: fmt.Sprintf("Endereço IP ou Hostname inválido: %s", newIP)}
 	}
-	err := s.Repo.UpdateIP(id, cleaned)
+	if method == "" {
+		method = "PING"
+	}
+	if thresholdMs <= 0 {
+		thresholdMs = 2000
+	}
+
+	err := s.Repo.UpdateDevice(id, cleaned, name, method, thresholdMs, uuid)
 	if err != nil {
 		return Result{Success: false, Error: fmt.Sprintf("Erro ao atualizar host: %s", err.Error())}
 	}

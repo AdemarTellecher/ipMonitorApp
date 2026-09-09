@@ -12,6 +12,9 @@ const metricOnline = document.getElementById('metricOnline');
 const metricOffline = document.getElementById('metricOffline');
 const hostsList = document.getElementById('hostsList');
 const ipInput = document.getElementById('ipInput');
+const nameInput = document.getElementById('nameInput');
+const methodSelect = document.getElementById('methodSelect');
+const thresholdInput = document.getElementById('thresholdInput');
 const addBtn = document.getElementById('addBtn');
 const addIpModal = document.getElementById('addIpModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -280,9 +283,12 @@ async function loadIps() {
 function openAddModal() {
     modalMode = 'add';
     modalTitle.textContent = 'Cadastrar Novo Dispositivo';
-    modalDesc.textContent = 'Digite o IP ou hostname para iniciar o monitoramento contínuo via ICMP Ping.';
+    modalDesc.textContent = 'Preencha os dados do dispositivo para o monitoramento contínuo.';
     modalConfirmLabel.textContent = 'Cadastrar';
     ipInput.value = '';
+    nameInput.value = '';
+    methodSelect.value = 'PING';
+    thresholdInput.value = '2000';
 
     modalBackdrop.classList.remove('hidden');
     networkOverviewCard.classList.add('has-modal');
@@ -302,9 +308,12 @@ function openEditModal() {
     }
     modalMode = 'edit';
     modalTitle.textContent = 'Editar Dispositivo / Host';
-    modalDesc.textContent = 'Atualize o IP ou hostname do dispositivo selecionado.';
+    modalDesc.textContent = 'Atualize as informações do dispositivo selecionado.';
     modalConfirmLabel.textContent = 'Salvar';
-    ipInput.value = selectedDevice.ip;
+    ipInput.value = selectedDevice.ip || '';
+    nameInput.value = selectedDevice.name || '';
+    methodSelect.value = selectedDevice.method || 'PING';
+    thresholdInput.value = selectedDevice.thresholdMs ? selectedDevice.thresholdMs : '2000';
 
     modalBackdrop.classList.remove('hidden');
     networkOverviewCard.classList.add('has-modal');
@@ -323,36 +332,56 @@ function closeAddModal() {
     navFocusAdd.classList.remove('active');
     navEdit.classList.remove('active');
     ipInput.value = '';
+    nameInput.value = '';
+    methodSelect.value = 'PING';
+    thresholdInput.value = '2000';
     modalMode = 'add';
 }
 
 // Submissão do Modal (Cadastrar ou Editar dependendo do modo)
 async function handleModalSubmit() {
-    const rawValue = ipInput.value.trim();
-    if (!rawValue) {
+    const rawIp = ipInput.value.trim();
+    if (!rawIp) {
         ipInput.focus();
         return;
     }
 
+    const nameVal = nameInput.value.trim();
+    const methodVal = methodSelect.value || 'PING';
+    const thresholdVal = parseInt(thresholdInput.value, 10) || 2000;
+
     try {
         addBtn.disabled = true;
         if (modalMode === 'add') {
-            const result = await callGo('add', { ip: rawValue });
+            const result = await callGo('add', {
+                ip: rawIp,
+                name: nameVal,
+                method: methodVal,
+                thresholdMs: thresholdVal,
+                uuid: '',
+            });
             if (result && result.error) {
                 showToast(result.error);
             } else {
                 closeAddModal();
-                showToast(`Host ${rawValue} cadastrado com sucesso!`);
+                showToast(`Host ${rawIp} cadastrado com sucesso!`);
                 await loadIps();
             }
         } else if (modalMode === 'edit') {
             if (!selectedDevice) return;
-            const result = await callGo('edit', { id: selectedDevice.id, newIp: rawValue });
+            const result = await callGo('edit', {
+                id: selectedDevice.id,
+                newIp: rawIp,
+                name: nameVal,
+                method: methodVal,
+                thresholdMs: thresholdVal,
+                uuid: selectedDevice.uuid || '',
+            });
             if (result && result.error) {
                 showToast(result.error);
             } else {
                 closeAddModal();
-                showToast(`Host alterado para ${rawValue} com sucesso!`);
+                showToast(`Host alterado para ${rawIp} com sucesso!`);
                 selectedDevice = null;
                 await loadIps();
             }
@@ -444,9 +473,12 @@ cancelAddBtn.addEventListener('click', closeAddModal);
 modalCloseXBtn.addEventListener('click', closeAddModal);
 modalBackdrop.addEventListener('click', closeAddModal);
 
-ipInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleModalSubmit();
-    if (e.key === 'Escape') closeAddModal();
+[ipInput, nameInput, thresholdInput].forEach(field => {
+    if (!field) return;
+    field.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleModalSubmit();
+        if (e.key === 'Escape') closeAddModal();
+    });
 });
 
 fileInput.addEventListener('change', handleFileSelected);
@@ -469,7 +501,7 @@ navEdit.addEventListener('click', () => {
 });
 navRemove.addEventListener('click', handleRemove);
 navAbout.addEventListener('click', () => {
-    showToast('IP Monitor v2.2.1 • Wails v3 + SQLite3');
+    showToast('IP Monitor v2.3.0 • Wails v3 + SQLite3');
 });
 
 // Listener para eventos periódicos emitidos pelo backend Go (Wails v3)

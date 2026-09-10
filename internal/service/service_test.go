@@ -280,3 +280,19 @@ func TestMonitorService_OrderingAndOverviewMetrics(t *testing.T) {
 	}
 }
 
+func TestMonitorService_GetVersion(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "test_ver.db")
+	repo, err := model.NewRepository(dbPath)
+	if err != nil {
+		t.Fatalf("Erro ao criar repo: %v", err)
+	}
+	defer repo.Close()
+
+	svc := service.NewMonitorService(repo)
+	ver := svc.GetVersion()
+	if !strings.HasPrefix(ver, "v") {
+		t.Errorf("Versão esperada iniciando com 'v', obteve %s", ver)
+	}
+}
+

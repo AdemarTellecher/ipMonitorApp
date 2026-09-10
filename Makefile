@@ -5,32 +5,33 @@
 
 APP_NAME := ipMonitorApp
 SRC := .
+OUT_DIR := build/bin
 
 # ------------------------------------------------------------------------------
 # Auto-detecção de Sistema Operacional
 # ------------------------------------------------------------------------------
 ifeq ($(OS),Windows_NT)
     DETECTED_OS := Windows
-    BINARY := $(APP_NAME).exe
+    BINARY := $(OUT_DIR)/$(APP_NAME).exe
     LDFLAGS := -s -w -H=windowsgui
     export CGO_ENABLED := 0
 
-    RM_CMD = cmd /C if exist $(BINARY) del /Q /F $(BINARY)
+    RM_CMD = cmd /C if exist build\bin rmdir /S /Q build\bin
     RUN_CMD = .\$(BINARY)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Darwin)
         DETECTED_OS := Darwin
-        APP_BUNDLE := "IP Monitor.app"
+        APP_BUNDLE := $(OUT_DIR)/"IP Monitor.app"
     else
         DETECTED_OS := Linux
     endif
 
-    BINARY := $(APP_NAME)
+    BINARY := $(OUT_DIR)/$(APP_NAME)
     LDFLAGS := -s -w
     export CGO_ENABLED := 1
 
-    RM_CMD = rm -rf $(BINARY) $(APP_BUNDLE)
+    RM_CMD = rm -rf $(OUT_DIR)
     RUN_CMD = ./$(BINARY)
 endif
 
@@ -44,17 +45,19 @@ all: build
 info:
 	@echo "========================================================"
 	@echo " Sistema Operacional detectado: $(DETECTED_OS)"
+	@echo " Diretorio de saida:            $(OUT_DIR)"
 	@echo " Binario de saida:              $(BINARY)"
 	@echo " Flags de linker (ldflags):     $(LDFLAGS)"
 	@echo "========================================================"
 
 build: info
-	@echo Compilando executavel unico e portatil...
+	@echo Compilando executavel unico e portatil para $(OUT_DIR)...
+	@mkdir -p $(OUT_DIR)
 	go build -ldflags="$(LDFLAGS)" -o $(BINARY) $(SRC)
 ifeq ($(DETECTED_OS),Darwin)
 	@echo Empacotando $(APP_BUNDLE)...
 	@mkdir -p $(APP_BUNDLE)/Contents/MacOS $(APP_BUNDLE)/Contents/Resources
-	@cp $(BINARY) $(APP_BUNDLE)/Contents/MacOS/$(BINARY)
+	@cp $(BINARY) $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 	@cp build/darwin/Info.plist $(APP_BUNDLE)/Contents/Info.plist
 	@if [ -f internal/assets/icons/app-icon.png ]; then \
 		mkdir -p AppIcon.iconset; \
@@ -75,7 +78,7 @@ ifeq ($(DETECTED_OS),Darwin)
 	@codesign --force --deep --sign - $(APP_BUNDLE) >/dev/null 2>&1 || true
 	@echo "Pacote $(APP_BUNDLE) criado e assinado com sucesso!"
 endif
-	@echo "Build concluido com sucesso: $(BINARY)"
+	@echo "Build concluido com sucesso em: $(BINARY)"
 
 run: build
 	@echo "Iniciando $(BINARY)..."

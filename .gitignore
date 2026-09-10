@@ -4,6 +4,8 @@
 *.app
 *.dmg
 .DS_Store
+build/bin/
+build/dist/
 
 # Ignorar banco de dados local
 #ipmonitor.db

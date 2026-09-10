@@ -12,10 +12,10 @@
 </head>
 <body>
     <div class="app-window">
-        <!-- Barra de Título Superior Nativa -->
+        <!-- Barra de Título Superior Nativa com Ícone da Aplicação -->
         <header class="titlebar">
             <div class="brand">
-                <div class="brand-logo">
+                <div class="brand-logo" title="IP Monitor App">
                     <svg viewBox="0 0 100 100" fill="none">
                         <defs>
                             <linearGradient id="ipPinGrad" x1="20%" y1="0%" x2="80%" y2="100%">
@@ -35,7 +35,6 @@
                         <text x="50" y="44.5" font-family="'Inter', system-ui, sans-serif" font-size="14.5" font-weight="900" fill="#ffffff" text-anchor="middle">IP</text>
                     </svg>
                 </div>
-                <span class="brand-title">IP Monitor</span>
             </div>
             <div class="titlebar-actions">
                 <button id="themeToggleBtn" class="theme-toggle-btn" title="Alternar entre tema escuro e claro">
@@ -111,7 +110,7 @@
                         <span class="nav-label">Sobre</span>
                         <div class="about-tooltip-popover" id="aboutPopover">
                             <div class="tooltip-header">
-                                <div class="tooltip-badge">v2.4.3</div>
+                                <div class="tooltip-badge" id="appVersionBadge">v2.5.2</div>
                                 <span class="tooltip-title">IP Monitor App</span>
                             </div>
                             <p class="tooltip-text">Monitoramento de conectividade ICMP Ping em tempo real, ultra-leve e portátil.</p>

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/AdemarTellecher/ipmonitorapp/internal/model"
+	"github.com/AdemarTellecher/ipmonitorapp/internal/version"
 	"github.com/go-ping/ping"
 )
 
@@ -105,9 +106,19 @@ func (s *MonitorService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		res := s.ImportJSONContent(string(bodyBytes))
 		_ = json.NewEncoder(w).Encode(res)
 
+	case "version":
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"version": s.GetVersion(),
+		})
+
 	default:
 		http.NotFound(w, r)
 	}
+}
+
+// GetVersion retorna a versão atual compilada no aplicativo
+func (s *MonitorService) GetVersion() string {
+	return version.CurrentVersion
 }
 
 // GetNetworkOverview retorna as métricas de disponibilidade e os hosts ordenados

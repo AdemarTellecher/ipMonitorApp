@@ -488,6 +488,24 @@ if (window.wails && window.wails.Events) {
     });
 }
 
+// Carrega a versão dinâmica exposta pelo backend Go
+async function loadVersion() {
+    const badge = document.getElementById('appVersionBadge');
+    if (!badge) return;
+    try {
+        const res = await fetch('/api/version');
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.version) {
+                badge.textContent = data.version;
+            }
+        }
+    } catch (e) {
+        console.warn('Não foi possível carregar a versão dinamicamente:', e);
+    }
+}
+
 // Inicia aplicação carregando os dados iniciais
 initTheme();
 loadIps();
+loadVersion();

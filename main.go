@@ -52,11 +52,14 @@ func main() {
 		Title:            "IP Monitor",
 		Width:            540,
 		Height:           740,
-		MinWidth:         480,
-		MinHeight:        640,
+		MinWidth:         540,
+		MinHeight:        740,
 		InitialPosition:  application.WindowCentered,
 		BackgroundColour: application.NewRGB(16, 19, 26),
 		URL:              "/",
+		Mac: application.MacWindow{
+			TitleBar: application.MacTitleBarHiddenInset,
+		},
 	})
 
 	// No macOS, ao fechar a janela (botão X vermelho), oculta a janela em vez de destruí-la,

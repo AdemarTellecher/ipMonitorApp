@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    name: Build ${{ matrix.os }} (${{ matrix.arch }})
+    name: Build ${{ matrix.title || matrix.os }} (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -19,6 +19,7 @@ jobs:
         include:
           # Windows x64
           - os: windows
+            title: Windows
             runner: windows-latest
             arch: amd64
             binary_name: ipMonitorApp.exe
@@ -26,6 +27,7 @@ jobs:
 
           # Linux x64
           - os: linux
+            title: Linux
             runner: ubuntu-latest
             arch: amd64
             binary_name: ipMonitorApp
@@ -33,19 +35,21 @@ jobs:
 
           # macOS Apple Silicon (arm64 - M1/M2/M3/M4)
           - os: darwin
+            title: Darwin Apple Silicon
             runner: macos-latest
             arch: arm64
             goarch: arm64
             binary_name: ipMonitorApp
-            asset_name: ipMonitorApp-darwin-arm64.dmg
+            asset_name: ipMonitorApp-AppleSilicon-arm64.dmg
 
           # macOS Intel (amd64) via compilação nativa no runner macOS
           - os: darwin
+            title: Darwin Intel
             runner: macos-latest
             arch: amd64
             goarch: amd64
             binary_name: ipMonitorApp
-            asset_name: ipMonitorApp-darwin-amd64.dmg
+            asset_name: ipMonitorApp-Intel-x86_64.dmg
 
     steps:
       - name: Checkout repositório

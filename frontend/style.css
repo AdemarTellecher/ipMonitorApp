@@ -107,27 +107,26 @@ body {
 .brand {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
 }
 
 .brand-logo {
-    width: 26px;
-    height: 26px;
+    width: 25px;
+    height: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease;
-    cursor: default;
-}
-
-.brand-logo:hover {
-    transform: scale(1.06);
 }
 
 .brand-logo svg {
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0 2px 4px rgba(2, 132, 199, 0.25));
+}
+
+.brand-title {
+    font-size: 15.5px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
 }
 
 .brand-tag {

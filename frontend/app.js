@@ -63,25 +63,28 @@ function toggleExpandHost(event, deviceId) {
     }
 }
 
-// Renderiza a lista de hosts na tabela Fluent (Priorizando dispositivos Offline no topo)
-function renderHosts(ips) {
-    currentIps = (ips || []).slice().sort((a, b) => {
-        // Prioridade: Offline (0) > Desconhecido/outros (1) > Online (2)
-        const getPriority = (status) => {
-            if (status === 'Offline') return 0;
-            if (status === 'Online') return 2;
-            return 1;
-        };
+// Renderiza a lista de hosts e o sumário de rede com dados prontos entregues pelo Go
+function renderHosts(data) {
+    let devices = [];
+    let total = 0;
+    let online = 0;
+    let offline = 0;
 
-        const diff = getPriority(a.status) - getPriority(b.status);
-        if (diff !== 0) return diff;
+    // Se receber a estrutura completa NetworkOverview calculada no Go
+    if (data && Array.isArray(data.devices)) {
+        devices = data.devices;
+        total = data.total;
+        online = data.online;
+        offline = data.offline;
+    } else if (Array.isArray(data)) {
+        devices = data;
+        total = devices.length;
+        online = devices.filter(d => d.status === 'Online').length;
+        offline = devices.filter(d => d.status === 'Offline').length;
+    }
 
-        // Desempate alfanumérico pelo IP/Host
-        return (a.ip || '').localeCompare(b.ip || '', undefined, { numeric: true, sensitivity: 'base' });
-    });
-
-    let onlineCount = 0;
-    let offlineCount = 0;
+    // Mantém a ordem canônica retornada pelo SQLite/Go (Offline > Desconhecido > Online > Host)
+    currentIps = devices;
 
     hostsList.innerHTML = '';
 
@@ -91,9 +94,6 @@ function renderHosts(ips) {
         currentIps.forEach(device => {
             const isOnline = device.status === 'Online';
             const isOffline = device.status === 'Offline';
-
-            if (isOnline) onlineCount++;
-            if (isOffline) offlineCount++;
 
             const isSelected = selectedDevice && selectedDevice.id === device.id;
             const isExpanded = expandedHostIds.has(device.id);
@@ -179,10 +179,10 @@ function renderHosts(ips) {
         });
     }
 
-    // Atualiza contadores
-    metricTotal.textContent = currentIps.length;
-    metricOnline.textContent = onlineCount;
-    metricOffline.textContent = offlineCount;
+    // Atualiza contadores com métricas consolidadas pelo backend Go
+    metricTotal.textContent = total;
+    metricOnline.textContent = online;
+    metricOffline.textContent = offline;
 
     // Valida seleção ativa
     if (selectedDevice) {
@@ -481,23 +481,13 @@ navEdit.addEventListener('click', () => {
 });
 navRemove.addEventListener('click', handleRemove);
 
-// Listener para eventos periódicos emitidos pelo backend Go (Wails v3)
+// Listener para eventos de atualização de status emitidos pelo backend Go (Wails v3)
 if (window.wails && window.wails.Events) {
-    window.wails.Events.On('ips-updated', (updatedIps) => {
-        renderHosts(updatedIps);
+    window.wails.Events.On('ips-updated', (updatedData) => {
+        renderHosts(updatedData);
     });
 }
 
-// Polling ativo no frontend para sincronização contínua de status em tempo real
-// Garante atualização na tela caso o backend termine uma varredura automática a cada 1 minuto
-setInterval(() => {
-    // Não recarrega a tabela se o usuário estiver com um modal de adição/edição aberto
-    if (!addIpModal.classList.contains('hidden')) {
-        return;
-    }
-    loadIps();
-}, 5000);
-
-// Inicia aplicação
+// Inicia aplicação carregando os dados iniciais
 initTheme();
 loadIps();

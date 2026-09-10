@@ -39,12 +39,12 @@ func (s *MonitorService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch path {
 	case "list":
-		ips, err := s.ListIPs()
+		overview, err := s.GetNetworkOverview()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		_ = json.NewEncoder(w).Encode(ips)
+		_ = json.NewEncoder(w).Encode(overview)
 
 	case "add":
 		var req struct {
@@ -89,12 +89,12 @@ func (s *MonitorService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(res)
 
 	case "update":
-		updated, err := s.UpdateAllStatuses()
+		overview, err := s.UpdateAllStatuses()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		_ = json.NewEncoder(w).Encode(updated)
+		_ = json.NewEncoder(w).Encode(overview)
 
 	case "import":
 		bodyBytes, err := io.ReadAll(r.Body)
@@ -110,7 +110,12 @@ func (s *MonitorService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ListIPs retorna todos os IPs cadastrados
+// GetNetworkOverview retorna as métricas de disponibilidade e os hosts ordenados
+func (s *MonitorService) GetNetworkOverview() (*model.NetworkOverview, error) {
+	return s.Repo.GetOverview()
+}
+
+// ListIPs retorna todos os IPs cadastrados (já ordenados por prioridade)
 func (s *MonitorService) ListIPs() ([]model.IPDevice, error) {
 	return s.Repo.List()
 }
@@ -145,8 +150,12 @@ func (s *MonitorService) AddIPWithDetails(ip, name, method string, thresholdMs i
 		return Result{Success: false, Error: err.Error()}
 	}
 
-	// Executa checagem imediata de conectividade
-	status := checkIPOnline(cleaned)
+	// Executa checagem imediata de conectividade com base nas regras do dispositivo
+	status := checkDeviceConnectivity(model.IPDevice{
+		IP:          cleaned,
+		Method:      method,
+		ThresholdMs: thresholdMs,
+	})
 	devices, err := s.Repo.List()
 	if err == nil {
 		for _, d := range devices {
@@ -191,15 +200,20 @@ func (s *MonitorService) EditIPWithDetails(id int, newIP, name, method string, t
 	if err != nil {
 		return Result{Success: false, Error: fmt.Sprintf("Erro ao atualizar host: %s", err.Error())}
 	}
-	// Executa checagem imediata de status após salvar
-	status := checkIPOnline(cleaned)
+	// Executa checagem imediata de status após salvar com regras configuradas
+	status := checkDeviceConnectivity(model.IPDevice{
+		ID:          id,
+		IP:          cleaned,
+		Method:      method,
+		ThresholdMs: thresholdMs,
+	})
 	_ = s.Repo.UpdateStatus(id, status)
 
 	return Result{Success: true, Message: "Host atualizado com sucesso"}
 }
 
-// UpdateAllStatuses executa a verificação em paralelo em todos os IPs cadastrados e retorna a lista atualizada
-func (s *MonitorService) UpdateAllStatuses() ([]model.IPDevice, error) {
+// UpdateAllStatuses executa a verificação em paralelo em todos os IPs cadastrados e retorna o sumário consolidado
+func (s *MonitorService) UpdateAllStatuses() (*model.NetworkOverview, error) {
 	devices, err := s.Repo.List()
 	if err != nil {
 		return nil, err
@@ -222,7 +236,7 @@ func (s *MonitorService) UpdateAllStatuses() ([]model.IPDevice, error) {
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			st := checkIPOnline(dev.IP)
+			st := checkDeviceConnectivity(dev)
 			updatesChan <- statusUpdate{id: dev.ID, status: st}
 		}(d)
 	}
@@ -234,7 +248,7 @@ func (s *MonitorService) UpdateAllStatuses() ([]model.IPDevice, error) {
 		_ = s.Repo.UpdateStatus(up.id, up.status)
 	}
 
-	return s.Repo.List()
+	return s.Repo.GetOverview()
 }
 
 // ImportJSONContent processa o texto JSON recebido do frontend e insere os IPs, Hostnames e metadados
@@ -412,7 +426,34 @@ func cleanHostOrIP(raw string) string {
 	return strings.ToLower(strings.TrimSpace(raw))
 }
 
+func checkDeviceConnectivity(device model.IPDevice) string {
+	timeoutMs := device.ThresholdMs
+	if timeoutMs <= 0 {
+		timeoutMs = 2000
+	}
+	timeout := time.Duration(timeoutMs) * time.Millisecond
+
+	// Se o método for explicitamente TCP, checa portas conhecidas com o timeout configurado
+	if strings.ToUpper(device.Method) == "TCP" {
+		for _, port := range []string{"443", "80", "8080", "22"} {
+			conn, dialErr := net.DialTimeout("tcp", net.JoinHostPort(device.IP, port), timeout)
+			if dialErr == nil {
+				_ = conn.Close()
+				return "Online"
+			}
+		}
+		return "Offline"
+	}
+
+	// Método PING (ou padrão): ICMP com timeout configurado
+	return checkIPWithTimeout(device.IP, timeout)
+}
+
 func checkIPOnline(target string) string {
+	return checkIPWithTimeout(target, 2000*time.Millisecond)
+}
+
+func checkIPWithTimeout(target string, timeout time.Duration) string {
 	target = strings.TrimSpace(target)
 	if target == "" {
 		return "Offline"
@@ -422,7 +463,7 @@ func checkIPOnline(target string) string {
 	pinger, err := ping.NewPinger(target)
 	if err == nil {
 		pinger.Count = 1
-		pinger.Timeout = 1500 * time.Millisecond
+		pinger.Timeout = timeout
 		// No Windows é obrigatório Privileged = true para sockets ICMP.
 		// No macOS (Darwin) e Linux sem root, Privileged deve ser false (usa sockets UDP ICMP unprivileged).
 		if runtime.GOOS == "windows" {
@@ -447,8 +488,12 @@ func checkIPOnline(target string) string {
 	}
 
 	// 3. Fallback para portas TCP comuns de serviços (80, 443, 8080, 22)
+	tcpTimeout := timeout
+	if tcpTimeout > 1000*time.Millisecond {
+		tcpTimeout = 1000 * time.Millisecond
+	}
 	for _, port := range []string{"443", "80", "8080", "22"} {
-		conn, dialErr := net.DialTimeout("tcp", net.JoinHostPort(target, port), 1000*time.Millisecond)
+		conn, dialErr := net.DialTimeout("tcp", net.JoinHostPort(target, port), tcpTimeout)
 		if dialErr == nil {
 			_ = conn.Close()
 			return "Online"

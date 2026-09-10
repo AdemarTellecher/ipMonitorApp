@@ -20,7 +20,7 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Darwin)
-        DETECTED_OS := macOS (Darwin)
+        DETECTED_OS := Darwin
         APP_BUNDLE := "IP Monitor.app"
     else
         DETECTED_OS := Linux
@@ -42,16 +42,16 @@ endif
 all: build
 
 info:
-	@echo ========================================================
-	@echo  Sistema Operacional detectado: $(DETECTED_OS)
-	@echo  Binario de saida:              $(BINARY)
-	@echo  Flags de linker (ldflags):     "$(LDFLAGS)"
-	@echo ========================================================
+	@echo "========================================================"
+	@echo " Sistema Operacional detectado: $(DETECTED_OS)"
+	@echo " Binario de saida:              $(BINARY)"
+	@echo " Flags de linker (ldflags):     $(LDFLAGS)"
+	@echo "========================================================"
 
 build: info
 	@echo Compilando executavel unico e portatil...
 	go build -ldflags="$(LDFLAGS)" -o $(BINARY) $(SRC)
-ifeq ($(DETECTED_OS),macOS (Darwin))
+ifeq ($(DETECTED_OS),Darwin)
 	@echo Empacotando $(APP_BUNDLE)...
 	@mkdir -p $(APP_BUNDLE)/Contents/MacOS $(APP_BUNDLE)/Contents/Resources
 	@cp $(BINARY) $(APP_BUNDLE)/Contents/MacOS/$(BINARY)
@@ -71,15 +71,15 @@ ifeq ($(DETECTED_OS),macOS (Darwin))
 		iconutil -c icns AppIcon.iconset -o $(APP_BUNDLE)/Contents/Resources/AppIcon.icns >/dev/null 2>&1 || true; \
 		rm -rf AppIcon.iconset; \
 	fi
-	@echo Assinando $(APP_BUNDLE) com ad-hoc codesign...
+	@echo "Assinando $(APP_BUNDLE) com ad-hoc codesign..."
 	@codesign --force --deep --sign - $(APP_BUNDLE) >/dev/null 2>&1 || true
-	@echo Pacote $(APP_BUNDLE) criado e assinado com sucesso!
+	@echo "Pacote $(APP_BUNDLE) criado e assinado com sucesso!"
 endif
-	@echo Build concluido com sucesso: $(BINARY)
+	@echo "Build concluido com sucesso: $(BINARY)"
 
 run: build
-	@echo Iniciando $(BINARY)...
-ifeq ($(DETECTED_OS),macOS (Darwin))
+	@echo "Iniciando $(BINARY)..."
+ifeq ($(DETECTED_OS),Darwin)
 	open $(APP_BUNDLE)
 else
 	$(RUN_CMD)

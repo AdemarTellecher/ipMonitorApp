@@ -201,15 +201,82 @@ func TestMonitorService_UpdateAllStatuses(t *testing.T) {
 	svc := service.NewMonitorService(repo)
 
 	_ = svc.AddIP("127.0.0.1")
-	_ = svc.AddIP("192.0.2.1") // IP RFC 5737 de teste não roteável (deve ficar offline rapidamente)
+	_ = svc.AddIP("192.0.2.1") // IP RFC 5737 de teste não roteável (deve ficar offline)
 
-	updated, err := svc.UpdateAllStatuses()
+	overview, err := svc.UpdateAllStatuses()
 	if err != nil {
 		t.Fatalf("UpdateAllStatuses falhou: %v", err)
 	}
 
-	if len(updated) != 2 {
-		t.Errorf("Esperava 2 hosts atualizados, obteve %d", len(updated))
+	if overview == nil {
+		t.Fatalf("Overview não deveria ser nil")
+	}
+
+	if overview.Total != 2 {
+		t.Errorf("Esperava 2 hosts no total, obteve %d", overview.Total)
+	}
+
+	if len(overview.Devices) != 2 {
+		t.Errorf("Esperava 2 devices no overview, obteve %d", len(overview.Devices))
+	}
+}
+
+func TestMonitorService_OrderingAndOverviewMetrics(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "test_order.db")
+
+	repo, err := model.NewRepository(dbPath)
+	if err != nil {
+		t.Fatalf("Erro ao criar repo de teste: %v", err)
+	}
+	defer repo.Close()
+
+	// Inserir dispositivos com status variados
+	_ = repo.AddDevice(model.IPDevice{IP: "10.0.0.1", Name: "Host Online"})
+	_ = repo.AddDevice(model.IPDevice{IP: "10.0.0.2", Name: "Host Offline"})
+	_ = repo.AddDevice(model.IPDevice{IP: "10.0.0.3", Name: "Host Desconhecido"})
+
+	devices, _ := repo.List()
+	for _, d := range devices {
+		if d.IP == "10.0.0.1" {
+			_ = repo.UpdateStatus(d.ID, "Online")
+		} else if d.IP == "10.0.0.2" {
+			_ = repo.UpdateStatus(d.ID, "Offline")
+		} else if d.IP == "10.0.0.3" {
+			_ = repo.UpdateStatus(d.ID, "Desconhecido")
+		}
+	}
+
+	svc := service.NewMonitorService(repo)
+	overview, err := svc.GetNetworkOverview()
+	if err != nil {
+		t.Fatalf("GetNetworkOverview falhou: %v", err)
+	}
+
+	// 1. Validar métricas de rede consolidadas
+	if overview.Total != 3 {
+		t.Errorf("Esperava total 3, obteve %d", overview.Total)
+	}
+	if overview.Online != 1 {
+		t.Errorf("Esperava online 1, obteve %d", overview.Online)
+	}
+	if overview.Offline != 1 {
+		t.Errorf("Esperava offline 1, obteve %d", overview.Offline)
+	}
+
+	// 2. Validar ordem canônica de prioridade: Offline (0) > Desconhecido (1) > Online (2)
+	if len(overview.Devices) != 3 {
+		t.Fatalf("Esperava 3 dispositivos, obteve %d", len(overview.Devices))
+	}
+
+	if overview.Devices[0].Status != "Offline" {
+		t.Errorf("Primeiro dispositivo deveria ser 'Offline', obteve %s (%s)", overview.Devices[0].Status, overview.Devices[0].IP)
+	}
+	if overview.Devices[1].Status != "Desconhecido" {
+		t.Errorf("Segundo dispositivo deveria ser 'Desconhecido', obteve %s (%s)", overview.Devices[1].Status, overview.Devices[1].IP)
+	}
+	if overview.Devices[2].Status != "Online" {
+		t.Errorf("Terceiro dispositivo deveria ser 'Online', obteve %s (%s)", overview.Devices[2].Status, overview.Devices[2].IP)
 	}
 }
 

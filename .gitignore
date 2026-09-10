@@ -1,6 +1,9 @@
 # Ignorar executáveis gerados
 *.exe
 *.exe~
+*.app
+*.dmg
+.DS_Store
 
 # Ignorar banco de dados local
 #ipmonitor.db
@@ -35,3 +38,4 @@ techContext.md
 # Ignorar arquivos temporários do sistema
 # Ignorar pasta de configuracoes e skills do Antigravity/AI locais
 .agents/
+IDE/*

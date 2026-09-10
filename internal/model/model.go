@@ -45,6 +45,13 @@ type IPDevice struct {
 	UUID        string `json:"uuid"`
 }
 
+type NetworkOverview struct {
+	Total   int        `json:"total"`
+	Online  int        `json:"online"`
+	Offline int        `json:"offline"`
+	Devices []IPDevice `json:"devices"`
+}
+
 type SiteItem struct {
 	Name        string `json:"name"`
 	Enabled     bool   `json:"enabled"`
@@ -203,7 +210,17 @@ func (repo *IPRepository) Remove(ip string) error {
 }
 
 func (repo *IPRepository) List() ([]IPDevice, error) {
-	rows, err := repo.DB.Query("SELECT id, ip, status, COALESCE(name, ''), COALESCE(method, 'PING'), COALESCE(threshold_ms, 2000), COALESCE(uuid, '') FROM ips")
+	query := `SELECT id, ip, status, COALESCE(name, ''), COALESCE(method, 'PING'), COALESCE(threshold_ms, 2000), COALESCE(uuid, '') 
+		FROM ips 
+		ORDER BY 
+			CASE status 
+				WHEN 'Offline' THEN 0 
+				WHEN 'Desconhecido' THEN 1 
+				WHEN 'Online' THEN 2 
+				ELSE 3 
+			END, 
+			ip ASC`
+	rows, err := repo.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -220,6 +237,36 @@ func (repo *IPRepository) List() ([]IPDevice, error) {
 		return nil, err
 	}
 	return devices, nil
+}
+
+// GetOverview retorna os dispositivos ordenados e o sumário consolidado com total, online e offline
+func (repo *IPRepository) GetOverview() (*NetworkOverview, error) {
+	devices, err := repo.List()
+	if err != nil {
+		return nil, err
+	}
+
+	onlineCount := 0
+	offlineCount := 0
+	for _, d := range devices {
+		switch d.Status {
+		case "Online":
+			onlineCount++
+		case "Offline":
+			offlineCount++
+		}
+	}
+
+	if devices == nil {
+		devices = []IPDevice{}
+	}
+
+	return &NetworkOverview{
+		Total:   len(devices),
+		Online:  onlineCount,
+		Offline: offlineCount,
+		Devices: devices,
+	}, nil
 }
 
 func (repo *IPRepository) UpdateStatus(id int, status string) error {

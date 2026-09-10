@@ -37,7 +37,7 @@ jobs:
             arch: arm64
             goarch: arm64
             binary_name: ipMonitorApp
-            asset_name: ipMonitorApp-darwin-arm64.zip
+            asset_name: ipMonitorApp-darwin-arm64.dmg
 
           # macOS Intel (amd64) via compilação nativa no runner macOS
           - os: darwin
@@ -45,7 +45,7 @@ jobs:
             arch: amd64
             goarch: amd64
             binary_name: ipMonitorApp
-            asset_name: ipMonitorApp-darwin-amd64.zip
+            asset_name: ipMonitorApp-darwin-amd64.dmg
 
     steps:
       - name: Checkout repositório
@@ -124,8 +124,18 @@ jobs:
           codesign --force --deep --sign - "$APP_BUNDLE"
           codesign --verify --deep --strict "$APP_BUNDLE"
 
-          # 5. Compacta o .app em ZIP preservando permissões de execução e assinaturas
-          ditto -c -k --keepParent "$APP_BUNDLE" "${{ matrix.asset_name }}"
+          # 5. Cria Imagem de Disco Nativa (.dmg) com atalho para /Applications
+          DMG_TMP="dmg_staging"
+          mkdir -p "$DMG_TMP"
+          cp -R "$APP_BUNDLE" "$DMG_TMP/"
+          ln -s /Applications "$DMG_TMP/Applications"
+
+          # Cria o DMG formatado em UDZO (compactado e somente leitura)
+          hdiutil create -volname "IP Monitor" -srcfolder "$DMG_TMP" -ov -format UDZO "${{ matrix.asset_name }}"
+          rm -rf "$DMG_TMP"
+
+          # 6. Assina o próprio container DMG com Ad-hoc codesign
+          codesign --force --sign - "${{ matrix.asset_name }}"
 
       - name: Upload Artifact temporário
         uses: actions/upload-artifact@v4

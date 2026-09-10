@@ -8,6 +8,7 @@ import (
 	"github.com/AdemarTellecher/ipmonitorapp/internal/model"
 	"github.com/AdemarTellecher/ipmonitorapp/internal/service"
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 //go:embed all:frontend
@@ -33,6 +34,9 @@ func main() {
 		Name:        "IP Monitor App",
 		Description: "Monitoramento de conectividade ICMP Ping portátil e ultra-leve",
 		Icon:        appIcon,
+		Mac: application.MacOptions{
+			ApplicationShouldTerminateAfterLastWindowClosed: false,
+		},
 		Services: []application.Service{
 			application.NewServiceWithOptions(monitorService, application.ServiceOptions{
 				Route: "/api",
@@ -44,7 +48,7 @@ func main() {
 	})
 
 	// 4. Cria a janela nativa elegante
-	app.Window.NewWithOptions(application.WebviewWindowOptions{
+	win := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:            "IP Monitor",
 		Width:            540,
 		Height:           740,
@@ -53,6 +57,19 @@ func main() {
 		InitialPosition:  application.WindowCentered,
 		BackgroundColour: application.NewRGB(16, 19, 26),
 		URL:              "/",
+	})
+
+	// No macOS, ao fechar a janela (botão X vermelho), oculta a janela em vez de destruí-la,
+	// permitindo reabri-la instantaneamente ao clicar no ícone na Dock.
+	win.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) {
+		win.Hide()
+		e.Cancel()
+	})
+
+	// Reabre e foca a janela ao clicar no ícone na Dock do macOS
+	app.Event.OnApplicationEvent(events.Mac.ApplicationShouldHandleReopen, func(event *application.ApplicationEvent) {
+		win.Show()
+		win.Focus()
 	})
 
 	// 5. Rotina periódica de ping a cada 1 minuto com emissão de evento

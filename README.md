@@ -107,9 +107,61 @@ make info    # Exibe dados do ambiente, SO detectado e flags de compilação
 
 ---
 
+## 🍏 Instalação no macOS & Aviso do Gatekeeper
+
+Ao baixar o aplicativo compactado ou a imagem de disco (`.dmg`) diretamente da internet (GitHub Releases), o macOS aplica o atributo de quarentena (`com.apple.quarantine`) por questões de segurança, exibindo um diálogo de alerta:
+
+> **"O Item ipMonitorApp-AppleSilicon-arm64.dmg Não Foi Aberto. A Apple não pôde verificar se o item está livre de algum malware capaz de danificar o Mac ou comprometer sua privacidade."**
+
+### Por que isso acontece?
+O **IP Monitor** é um projeto de código aberto e independente. Como ele não possui a assinatura paga anual da Apple Developer ($99/ano) com notarização automática nos servidores da Apple, o Gatekeeper bloqueia a abertura direta com 2 cliques.
+
+### Como abrir e instalar (Escolha uma das 3 opções):
+
+#### Opção 1: Via Terminal (Mais Rápido e Definitivo)
+Abra o Terminal no Mac e execute o comando para remover a quarentena do arquivo baixado:
+
+```bash
+xattr -d com.apple.quarantine ~/Downloads/ipMonitorApp-AppleSilicon-arm64*.dmg
+```
+*(ou para a versão Intel: `xattr -d com.apple.quarantine ~/Downloads/ipMonitorApp-Intel-x86_64*.dmg`)*
+
+Pronto! Agora basta dar **duplo clique no `.dmg`**, arrastar o **IP Monitor.app** para a pasta **Applications** e abri-lo normalmente.
+
+---
+
+#### Opção 2: Pelo Finder com a tecla Control (Sem usar Terminal)
+1. Feche o aviso clicando em **OK** (não clique em *"Mover para o Lixo"*).
+2. No **Finder** (na sua pasta Downloads), clique com o **botão direito** (ou segure a tecla **Control ⌃** e clique) em cima do arquivo `.dmg`.
+3. Selecione a opção **Abrir**.
+4. O macOS exibirá um diálogo com um botão explícito **"Abrir"** além do botão de cancelar. Basta clicar em **Abrir**.
+
+---
+
+#### Opção 3: Pelos Ajustes do Sistema (Preferências)
+1. Clique em **OK** no aviso de bloqueio.
+2. Abra os **Ajustes do Sistema** (*System Settings*) ➔ **Privacidade e Segurança** (*Privacy & Security*).
+3. Role a página até a seção **Segurança**.
+4. Você verá a mensagem informando que o arquivo foi bloqueado porque não é de um desenvolvedor identificado.
+5. Clique no botão **"Abrir Mesmo Assim"** (*Open Anyway*) e confirme com sua senha ou Touch ID.
+
+---
+
+> 💡 **Dica após arrastar para `/Applications`**:
+> Caso o macOS exiba o mesmo aviso de desenvolvedor não verificado ao abrir o aplicativo instalado pela primeira vez, faça o mesmo: clique com **Control + Botão Direito ➔ Abrir** no `IP Monitor.app` ou execute no Terminal:
+> ```bash
+> xattr -cr "/Applications/IP Monitor.app"
+> ```
+
+---
+
 ## 💾 Banco de Dados Local
 
-O banco de dados SQLite (`ipmonitor.db`) é resolvido dinamicamente no diretório onde o executável se encontra. O aplicativo pode ser copiado para qualquer diretório ou pendrive sem perder suas configurações e histórico. Novas colunas de metadados (`name`, `method`, `threshold_ms`, `uuid`) são migradas automaticamente na inicialização.
+O banco de dados SQLite (`ipmonitor.db`) é resolvido dinamicamente de acordo com o sistema operacional:
+- **macOS:** Armazenado de forma segura e nativa em `~/Library/Application Support/IPMonitor/ipmonitor.db`.
+- **Windows / Linux:** Salvo no mesmo diretório do executável, garantindo portabilidade para cópia em pendrives ou pastas compartilhadas.
+
+Novas colunas de metadados (`name`, `method`, `threshold_ms`, `uuid`) são migradas automaticamente na inicialização.
 
 ---
 

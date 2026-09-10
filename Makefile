@@ -16,6 +16,7 @@ ifeq ($(OS),Windows_NT)
     LDFLAGS := -s -w -H=windowsgui
     export CGO_ENABLED := 0
 
+    MKDIR_CMD = cmd /C if not exist build\bin mkdir build\bin
     RM_CMD = cmd /C if exist build\bin rmdir /S /Q build\bin
     RUN_CMD = .\$(BINARY)
 else
@@ -31,6 +32,7 @@ else
     LDFLAGS := -s -w
     export CGO_ENABLED := 1
 
+    MKDIR_CMD = mkdir -p $(OUT_DIR)
     RM_CMD = rm -rf $(OUT_DIR)
     RUN_CMD = ./$(BINARY)
 endif
@@ -52,7 +54,7 @@ info:
 
 build: info
 	@echo Compilando executavel unico e portatil para $(OUT_DIR)...
-	@mkdir -p $(OUT_DIR)
+	@$(MKDIR_CMD)
 	go build -ldflags="$(LDFLAGS)" -o $(BINARY) $(SRC)
 ifeq ($(DETECTED_OS),Darwin)
 	@echo Empacotando $(APP_BUNDLE)...

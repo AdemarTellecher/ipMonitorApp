@@ -77,10 +77,14 @@ func main() {
 		ticker := time.NewTicker(1 * time.Minute)
 		defer ticker.Stop()
 		for range ticker.C {
+			log.Println("[IP Monitor] Iniciando varredura periódica automática de 1 minuto...")
 			updated, err := monitorService.UpdateAllStatuses()
-			if err == nil {
-				app.Event.Emit("ips-updated", updated)
+			if err != nil {
+				log.Printf("[IP Monitor] Erro na varredura periódica: %v\n", err)
+				continue
 			}
+			log.Printf("[IP Monitor] Varredura periódica concluída com sucesso (%d hosts cadastrados). Emitindo evento ips-updated...\n", updated.Total)
+			app.Event.Emit("ips-updated", updated)
 		}
 	}()
 

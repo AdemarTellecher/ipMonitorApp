@@ -482,11 +482,48 @@ navEdit.addEventListener('click', () => {
 navRemove.addEventListener('click', handleRemove);
 
 // Listener para eventos de atualização de status emitidos pelo backend Go (Wails v3)
-if (window.wails && window.wails.Events) {
-    window.wails.Events.On('ips-updated', (updatedData) => {
-        renderHosts(updatedData);
-    });
+function handleIpsUpdatedEvent(eventOrData) {
+    console.log('[IP Monitor] Evento ips-updated recebido do backend:', eventOrData);
+    const data = (eventOrData && eventOrData.data !== undefined) ? eventOrData.data : eventOrData;
+    if (data) {
+        renderHosts(data);
+    }
 }
+
+// Registra listener no Wails Events com retry caso o runtime carregue de forma assíncrona
+function setupWailsEventListeners() {
+    if (window.wails && window.wails.Events && typeof window.wails.Events.On === 'function') {
+        window.wails.Events.On('ips-updated', handleIpsUpdatedEvent);
+        console.log('[IP Monitor] Listener Wails v3 para "ips-updated" registrado com sucesso.');
+    } else {
+        // Tenta novamente caso o script do runtime demore alguns milissegundos
+        setTimeout(() => {
+            if (window.wails && window.wails.Events && typeof window.wails.Events.On === 'function') {
+                window.wails.Events.On('ips-updated', handleIpsUpdatedEvent);
+                console.log('[IP Monitor] Listener Wails v3 para "ips-updated" registrado após retry.');
+            } else {
+                console.warn('[IP Monitor] Wails runtime não detectado para eventos nativos; operando com fallback.');
+            }
+        }, 500);
+    }
+}
+
+// Fallback de polling a cada 60 segundos (garante que a UI sempre atualize mesmo se eventos IPC falharem)
+function startPeriodicFallbackSync() {
+    setInterval(async () => {
+        try {
+            const overview = await callGo('list');
+            if (overview) {
+                renderHosts(overview);
+            }
+        } catch (e) {
+            console.warn('[IP Monitor] Fallback periódico de sincronização falhou:', e);
+        }
+    }, 60000);
+}
+
+setupWailsEventListeners();
+startPeriodicFallbackSync();
 
 // Carrega a versão dinâmica exposta pelo backend Go
 async function loadVersion() {

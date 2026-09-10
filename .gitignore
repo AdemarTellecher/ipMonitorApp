@@ -33,6 +33,5 @@ techContext.md
 *.cache
 
 # Ignorar arquivos temporários do sistema
-.DS_Store
-Thumbs.db
-
+# Ignorar pasta de configuracoes e skills do Antigravity/AI locais
+.agents/

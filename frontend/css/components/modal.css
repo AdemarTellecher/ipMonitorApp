@@ -1,7 +1,9 @@
 /* ==============================================================================
-   IP Monitor - Componente: Modal & Backdrop (Cadastro e Edição)
+   IP Monitor - Componente: Modais do Sistema (Design Fiel ao Flutter)
+   Suporte a Dark e Light Mode para: Novo Dispositivo, Importar JSON e Sobre
    ============================================================================== */
 
+/* Backdrop Escurecedor e Difuso */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -14,14 +16,15 @@
 }
 
 body.light-theme .modal-backdrop {
-    background: rgba(15, 23, 42, 0.35);
+    background: rgba(15, 23, 42, 0.38);
 }
 
 .modal-backdrop.hidden {
     display: none;
 }
 
-.add-ip-overlay {
+/* Container de Centralização */
+.app-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -33,123 +36,342 @@ body.light-theme .modal-backdrop {
     z-index: 1000;
 }
 
-.add-ip-overlay.hidden {
+.app-modal-overlay.hidden {
     display: none;
 }
 
+/* Cartão do Modal */
 .modal-inner {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
-    border-radius: var(--radius-xl);
+    border-radius: 18px;
     width: 440px;
     max-width: 90vw;
-    padding: 18px 22px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    padding: 24px 28px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
 }
 
+body.light-theme .modal-inner {
+    background: #f2f2f6;
+    border-color: #9f9f9f;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+}
+
+.import-modal-inner {
+    width: 480px;
+}
+
+.about-modal-inner {
+    width: 460px;
+}
+
+/* Cabeçalho do Modal */
 .modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 4px;
+    margin-bottom: 20px;
+}
+
+.about-modal-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.about-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
+}
+
+body.light-theme .about-dot {
+    background: #0284c7;
+    box-shadow: 0 0 6px #0284c7;
 }
 
 .modal-title {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 700;
     color: var(--text-primary);
+    letter-spacing: -0.01em;
 }
 
 .modal-close-x {
     background: transparent;
     border: none;
     color: var(--text-dim);
-    font-size: 20px;
+    font-size: 22px;
+    line-height: 1;
     cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 6px;
+    transition: color 0.15s ease;
+}
+
+.modal-close-x:hover {
+    color: var(--text-primary);
 }
 
 .modal-desc {
     font-size: 12px;
     color: var(--text-secondary);
-    margin-bottom: 14px;
+    margin-top: -8px;
+    margin-bottom: 16px;
+    line-height: 1.4;
 }
 
-.modal-form-grid {
+/* Estrutura do Formulário */
+.modal-form-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-row-2col {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-}
-
-.form-group.full-width {
-    grid-column: 1 / -1;
+    gap: 6px;
 }
 
 .form-label {
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 600;
     color: var(--text-secondary);
 }
 
-.modal-text-field, .ip-field {
+body.light-theme .form-label {
+    color: #475569;
+}
+
+/* Inputs e Selects com borda suave estilo Flutter */
+.modal-input,
+.modal-select {
     width: 100%;
     background: var(--bg-input);
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 8px 10px;
+    border-radius: 12px;
+    padding: 10px 14px;
     color: var(--text-primary);
     font-family: inherit;
-    font-size: 12.5px;
+    font-size: 13px;
     outline: none;
+    transition: border-color 0.18s ease;
 }
 
-.modal-text-field:focus, .ip-field:focus {
-    border-color: var(--border-focus);
+body.light-theme .modal-input,
+body.light-theme .modal-select {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
 }
 
-.modal-select-field {
+.modal-input::placeholder {
+    color: var(--text-dim);
+    opacity: 0.75;
+}
+
+.modal-input:focus,
+.modal-select:focus {
+    border-color: var(--accent-blue);
+}
+
+.modal-select {
+    cursor: pointer;
+}
+
+/* Botão Outline Selecionar Arquivo .JSON */
+.import-file-section {
+    margin-bottom: 14px;
+}
+
+.btn-outline-upload {
     width: 100%;
-    background: var(--bg-input);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 8px 10px;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 12.5px;
-    outline: none;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 16px;
-}
-
-.btn-action {
-    padding: 7px 14px;
-    border-radius: var(--radius-md);
+    background: transparent;
+    border: 1.5px solid #38bdf8;
+    border-radius: 12px;
+    padding: 9px 14px;
+    color: #38bdf8;
     font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
-    border: 1px solid transparent;
-}
-
-.btn-modal-cancel {
-    background: transparent;
-    color: var(--text-secondary);
-    border-color: var(--border-subtle);
-}
-
-.btn-modal-confirm {
-    background: var(--accent-blue);
-    color: #ffffff;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.15s ease;
+}
+
+body.light-theme .btn-outline-upload {
+    border-color: #0284c7;
+    color: #0284c7;
+}
+
+.btn-outline-upload:hover {
+    background: rgba(56, 189, 248, 0.08);
+}
+
+body.light-theme .btn-outline-upload:hover {
+    background: #e0f2fe;
+}
+
+/* Textarea de JSON estilo editor */
+.import-textarea {
+    width: 100%;
+    height: 140px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    resize: none;
+    line-height: 1.45;
+}
+
+body.light-theme .import-textarea {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.import-textarea:focus {
+    border-color: var(--accent-blue);
+}
+
+/* Tabela de Informações do Modal "Sobre" */
+.about-info-table {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.about-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+    align-items: baseline;
+    font-size: 12.5px;
+}
+
+.about-label {
+    color: var(--accent-blue);
+    font-weight: 600;
+    text-align: right;
+}
+
+body.light-theme .about-label {
+    color: #0284c7;
+}
+
+.about-value {
+    color: var(--text-primary);
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.about-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 18px 0 14px 0;
+}
+
+body.light-theme .about-divider {
+    background: #e2e8f0;
+}
+
+.about-footer-text {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+/* Barra de Ações (Rodapé) */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-top: 24px;
+}
+
+/* Botão Cancelar no lado esquerdo com estilo e características de cancelamento */
+.btn-modal-cancel {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 9px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+body.light-theme .btn-modal-cancel {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #64748b;
+}
+
+.btn-modal-cancel:hover {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+body.light-theme .btn-modal-cancel:hover {
+    color: #dc2626;
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+
+.btn-modal-cancel:active {
+    transform: translateY(1px);
+}
+
+/* Botão Primário (Cadastrar / Salvar / Importar) à direita */
+.btn-modal-primary {
+    background: #0284c7;
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.light-theme .btn-modal-primary {
+    background: #0284c7;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+.btn-modal-primary:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.btn-modal-primary:active {
+    transform: translateY(0);
 }

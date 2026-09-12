@@ -161,21 +161,23 @@ func (s *MonitorService) AddIPWithDetails(ip, name, method string, thresholdMs i
 		return Result{Success: false, Error: err.Error()}
 	}
 
-	// Executa checagem imediata de conectividade com base nas regras do dispositivo
-	status := checkDeviceConnectivity(model.IPDevice{
-		IP:          cleaned,
-		Method:      method,
-		ThresholdMs: thresholdMs,
-	})
-	devices, err := s.Repo.List()
-	if err == nil {
-		for _, d := range devices {
-			if d.IP == cleaned {
-				_ = s.Repo.UpdateStatus(d.ID, status)
-				break
+	// Executa checagem de conectividade em segundo plano para não travar a UI em caso de host offline
+	go func() {
+		status := checkDeviceConnectivity(model.IPDevice{
+			IP:          cleaned,
+			Method:      method,
+			ThresholdMs: thresholdMs,
+		})
+		devices, err := s.Repo.List()
+		if err == nil {
+			for _, d := range devices {
+				if d.IP == cleaned {
+					_ = s.Repo.UpdateStatus(d.ID, status)
+					break
+				}
 			}
 		}
-	}
+	}()
 
 	return Result{Success: true, Message: "Host adicionado com sucesso"}
 }
@@ -211,14 +213,16 @@ func (s *MonitorService) EditIPWithDetails(id int, newIP, name, method string, t
 	if err != nil {
 		return Result{Success: false, Error: fmt.Sprintf("Erro ao atualizar host: %s", err.Error())}
 	}
-	// Executa checagem imediata de status após salvar com regras configuradas
-	status := checkDeviceConnectivity(model.IPDevice{
-		ID:          id,
-		IP:          cleaned,
-		Method:      method,
-		ThresholdMs: thresholdMs,
-	})
-	_ = s.Repo.UpdateStatus(id, status)
+	// Executa checagem de conectividade em segundo plano para fechamento instantâneo do modal
+	go func() {
+		status := checkDeviceConnectivity(model.IPDevice{
+			ID:          id,
+			IP:          cleaned,
+			Method:      method,
+			ThresholdMs: thresholdMs,
+		})
+		_ = s.Repo.UpdateStatus(id, status)
+	}()
 
 	return Result{Success: true, Message: "Host atualizado com sucesso"}
 }

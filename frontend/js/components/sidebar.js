@@ -1,19 +1,19 @@
 // ==============================================================================
-// IP Monitor - Componente: Sidebar (Ações, Varredura, Remoção, Importação)
+// IP Monitor - Componente: Sidebar (Ações, Varredura, Remoção, Importação, Sobre)
 // ==============================================================================
 
 import { state, setSelectedDevice } from '../state.js';
 import { callGo } from '../services/api.js';
 import { showToast } from './toast.js';
 import { renderHosts, updateActionButtonsState } from './hostList.js';
-import { openAddModal, openEditModal, closeAddModal, loadIps } from './modal.js';
+import { openAddModal, openEditModal, openImportModal, openAboutModal, closeAddModal, loadIps } from './modal.js';
 
 const navFocusAdd = document.getElementById('navFocusAdd');
 const navImport = document.getElementById('navImport');
 const navRefresh = document.getElementById('navRefresh');
 const navEdit = document.getElementById('navEdit');
 const navRemove = document.getElementById('navRemove');
-const fileInput = document.getElementById('fileInput');
+const navAbout = document.getElementById('navAbout');
 const addIpModal = document.getElementById('addIpModal');
 
 export async function handleRefresh() {
@@ -54,26 +54,6 @@ export async function handleRemove() {
     }
 }
 
-export async function handleFileSelected(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    try {
-        const text = await file.text();
-        const result = await callGo('import', text);
-        if (result && result.success) {
-            showToast(`Importação concluída: ${result.count || 0} hosts adicionados!`);
-            await loadIps();
-        } else {
-            showToast(result.error || 'Erro na importação de JSON');
-        }
-    } catch (err) {
-        showToast('Falha ao processar arquivo JSON');
-    } finally {
-        if (fileInput) fileInput.value = '';
-    }
-}
-
 export function initSidebar() {
     if (navFocusAdd) {
         navFocusAdd.addEventListener('click', () => {
@@ -85,9 +65,10 @@ export function initSidebar() {
         });
     }
 
-    if (navImport && fileInput) {
-        navImport.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFileSelected);
+    if (navImport) {
+        navImport.addEventListener('click', () => {
+            openImportModal();
+        });
     }
 
     if (navRefresh) {
@@ -104,5 +85,11 @@ export function initSidebar() {
 
     if (navRemove) {
         navRemove.addEventListener('click', handleRemove);
+    }
+
+    if (navAbout) {
+        navAbout.addEventListener('click', () => {
+            openAboutModal();
+        });
     }
 }

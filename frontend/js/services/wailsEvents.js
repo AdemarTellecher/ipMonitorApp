@@ -14,18 +14,29 @@ export function handleIpsUpdatedEvent(eventOrData) {
     }
 }
 
-// Registra listener no Wails Events com retry caso o runtime carregue de forma assíncrona
-export function setupWailsEventListeners() {
+// Registra listener no Wails Events com importação modular ES e fallback
+export async function setupWailsEventListeners() {
+    try {
+        // No Wails v3, o runtime é um ES Module que exporta { Events, Application, Window }
+        const runtime = await import('/wails/runtime.js');
+        if (runtime && runtime.Events && typeof runtime.Events.On === 'function') {
+            runtime.Events.On('ips-updated', handleIpsUpdatedEvent);
+            console.log('[IP Monitor] Listener Wails v3 (ES Module) para "ips-updated" registrado com sucesso.');
+            return;
+        }
+    } catch (e) {
+        console.log('[IP Monitor] Importação direta de /wails/runtime.js em andamento via fallback...');
+    }
+
+    // Fallback para caso o runtime defina window.wails globalmente
     if (window.wails && window.wails.Events && typeof window.wails.Events.On === 'function') {
         window.wails.Events.On('ips-updated', handleIpsUpdatedEvent);
-        console.log('[IP Monitor] Listener Wails v3 para "ips-updated" registrado com sucesso.');
+        console.log('[IP Monitor] Listener Wails v3 (window.wails) para "ips-updated" registrado com sucesso.');
     } else {
         setTimeout(() => {
             if (window.wails && window.wails.Events && typeof window.wails.Events.On === 'function') {
                 window.wails.Events.On('ips-updated', handleIpsUpdatedEvent);
-                console.log('[IP Monitor] Listener Wails v3 para "ips-updated" registrado após retry.');
-            } else {
-                console.warn('[IP Monitor] Wails runtime não detectado para eventos nativos; operando com fallback.');
+                console.log('[IP Monitor] Listener Wails v3 registrado após retry.');
             }
         }, 500);
     }

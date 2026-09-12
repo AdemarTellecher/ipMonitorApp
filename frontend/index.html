@@ -94,7 +94,7 @@
                         </div>
                         <span class="nav-label">Remover</span>
                     </li>
-                    <li class="nav-item has-tooltip" id="navAbout">
+                    <li class="nav-item" id="navAbout" title="Sobre o IP Monitor">
                         <div class="nav-icon">
                             <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"/>
@@ -103,19 +103,6 @@
                             </svg>
                         </div>
                         <span class="nav-label">Sobre</span>
-                        <div class="about-tooltip-popover" id="aboutPopover">
-                            <div class="tooltip-header">
-                                <div class="tooltip-badge" id="appVersionBadge">v2.6.0</div>
-                                <span class="tooltip-title">IP Monitor App</span>
-                            </div>
-                            <p class="tooltip-text">Monitoramento de conectividade ICMP Ping em tempo real, ultra-leve e portátil.</p>
-                            <div class="tooltip-divider"></div>
-                            <div class="tooltip-techs">
-                                <span>⚡ Go Puro</span>
-                                <span>🚀 Wails v3</span>
-                                <span>💾 SQLite3</span>
-                            </div>
-                        </div>
                     </li>
                 </ul>
             </nav>
@@ -199,60 +186,128 @@
     <!-- Backdrop Bloqueador de Toda a Interface -->
     <div id="modalBackdrop" class="modal-backdrop hidden"></div>
 
-    <!-- Modal Global Centralizado de Cadastro / Edição -->
-    <div id="addIpModal" class="add-ip-overlay hidden">
+    <!-- Modal 1: Cadastro / Edição de Dispositivo -->
+    <div id="addIpModal" class="app-modal-overlay hidden">
         <div class="modal-inner">
             <div class="modal-header">
-                <span class="modal-title" id="modalTitle">Cadastrar Novo Dispositivo</span>
+                <span class="modal-title" id="modalTitle">Novo Dispositivo</span>
                 <button id="modalCloseXBtn" class="modal-close-x" title="Fechar">&times;</button>
             </div>
-            <p class="modal-desc" id="modalDesc">Preencha os dados do dispositivo para o monitoramento contínuo.</p>
 
-            <div class="modal-form-grid">
-                <div class="form-group full-width">
-                    <label class="form-label" for="ipInput">Endereço IP ou Hostname <span class="required">*</span></label>
-                    <div class="input-wrapper modal-input-wrapper">
-                        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                        </svg>
-                        <input type="text" id="ipInput" placeholder="Ex: 192.168.1.1 ou google.com.br" class="ip-field" autocomplete="off" spellcheck="false">
+            <div class="modal-form-vertical">
+                <div class="form-group">
+                    <label class="form-label" for="ipInput">Endereço IP ou Hostname</label>
+                    <input type="text" id="ipInput" placeholder="ex: 192.168.1.1 ou google.com" class="modal-input" autocomplete="off" spellcheck="false">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="nameInput">Nome / Identificação Amigável</label>
+                    <input type="text" id="nameInput" placeholder="ex: Roteador Principal" class="modal-input" autocomplete="off" spellcheck="false">
+                </div>
+
+                <div class="form-row-2col">
+                    <div class="form-group">
+                        <label class="form-label" for="methodSelect">Método de Teste</label>
+                        <select id="methodSelect" class="modal-select">
+                            <option value="PING" selected>PING (ICMP)</option>
+                            <option value="TCP">TCP (Portas 80/443)</option>
+                        </select>
                     </div>
-                </div>
 
-                <div class="form-group full-width">
-                    <label class="form-label" for="nameInput">Nome / Identificação (Opcional)</label>
-                    <input type="text" id="nameInput" placeholder="Ex: RADAR-PA255 - KM3" class="modal-text-field" autocomplete="off" spellcheck="false">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="methodSelect">Método de Teste</label>
-                    <select id="methodSelect" class="modal-select-field">
-                        <option value="PING" selected>PING (ICMP)</option>
-                        <option value="TCP">TCP (Portas 80/443)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="thresholdInput">Timeout Limite (ms)</label>
-                    <input type="number" id="thresholdInput" placeholder="2000" value="2000" min="100" max="10000" step="100" class="modal-text-field">
+                    <div class="form-group">
+                        <label class="form-label" for="thresholdInput">Timeout (ms)</label>
+                        <input type="number" id="thresholdInput" placeholder="2000" value="2000" min="100" max="10000" step="100" class="modal-input">
+                    </div>
                 </div>
             </div>
 
             <div class="modal-actions">
-                <button id="cancelAddBtn" class="btn-action btn-modal-cancel">Cancelar</button>
-                <button id="addBtn" class="btn-action btn-modal-confirm">
-                    <svg id="modalConfirmIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <button id="cancelAddBtn" class="btn-modal-cancel" type="button">Cancelar</button>
+                <button id="addBtn" class="btn-modal-primary" type="button">
                     <span id="modalConfirmLabel">Cadastrar</span>
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Modal 2: Importar Hosts (.JSON) -->
+    <div id="importModal" class="app-modal-overlay hidden">
+        <div class="modal-inner import-modal-inner">
+            <div class="modal-header">
+                <span class="modal-title">Importar Hosts (.JSON)</span>
+                <button id="importCloseXBtn" class="modal-close-x" title="Fechar">&times;</button>
+            </div>
+            <p class="modal-desc">Carregue um arquivo .json estruturado ou cole o conteúdo JSON abaixo:</p>
+
+            <div class="import-file-section">
+                <button id="importPickFileBtn" class="btn-outline-upload" type="button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span>Selecionar Arquivo .JSON</span>
+                </button>
+                <input type="file" id="fileInput" accept=".json" style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <textarea id="importJsonTextarea" class="import-textarea" placeholder='{&#10;  "sites": [&#10;    { "url": "1.1.1.1", "name": "Cloudflare" }&#10;  ]&#10;}' spellcheck="false"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button id="cancelImportBtn" class="btn-modal-cancel" type="button">Cancelar</button>
+                <button id="confirmImportBtn" class="btn-modal-primary" type="button">Iniciar Importação</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Sobre o IP Monitor -->
+    <div id="aboutModal" class="app-modal-overlay hidden">
+        <div class="modal-inner about-modal-inner">
+            <div class="modal-header">
+                <div class="about-modal-title-group">
+                    <span class="about-dot"></span>
+                    <span class="modal-title">Informações sobre o app</span>
+                </div>
+                <button id="aboutCloseXBtn" class="modal-close-x" title="Fechar">&times;</button>
+            </div>
+
+            <div class="about-info-table">
+                <div class="about-row">
+                    <span class="about-label">Aplicação:</span>
+                    <span class="about-value">IP Monitor APP</span>
+                </div>
+                <div class="about-row">
+                    <span class="about-label">Versão:</span>
+                    <span class="about-value" id="aboutVersionText">v2.6.1</span>
+                </div>
+                <div class="about-row">
+                    <span class="about-label">Stack:</span>
+                    <span class="about-value">Go Puro / Wails v3 / SQLite3 FFI</span>
+                </div>
+                <div class="about-row">
+                    <span class="about-label">Plataforma:</span>
+                    <span class="about-value">Windows, macOS e Linux</span>
+                </div>
+                <div class="about-row">
+                    <span class="about-label">Banco de Dados:</span>
+                    <span class="about-value">SQLite Dinâmico Conectado (ips.db)</span>
+                </div>
+            </div>
+
+            <div class="about-divider"></div>
+
+            <p class="about-footer-text">
+                Monitoramento contínuo de conectividade e disponibilidade de rede em tempo real.
+            </p>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="toast hidden"></div>
 
-    <script src="/wails/runtime.js"></script>
+    <script type="module" src="/wails/runtime.js"></script>
     <script type="module" src="js/app.js"></script>
 </body>
 </html>

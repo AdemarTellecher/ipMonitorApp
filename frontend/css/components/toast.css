@@ -1,0 +1,31 @@
+/* ==============================================================================
+   IP Monitor - Componente: Toast & Utilitários Globais
+   ============================================================================== */
+
+.toast {
+    position: fixed;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    color: var(--text-primary);
+    padding: 7px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+}
+
+.toast.hidden {
+    display: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}

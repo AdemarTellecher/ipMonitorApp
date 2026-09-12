@@ -1,0 +1,142 @@
+/* ==============================================================================
+   IP Monitor - Componente: Sidebar (Barra Lateral de Ações e Popover Sobre)
+   ============================================================================== */
+
+.sidebar {
+    width: 92px;
+    background: transparent;
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px 10px 12px 10px;
+    flex-shrink: 0;
+}
+
+.nav-group {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 9px 4px 7px 4px;
+    background: var(--sidebar-btn-bg);
+    border: 1px solid var(--sidebar-btn-border);
+    border-radius: var(--radius-md);
+    color: var(--sidebar-btn-text);
+    cursor: pointer;
+    transition: all 0.16s ease;
+    width: 100%;
+    position: relative;
+}
+
+.nav-item:hover:not(.disabled) {
+    color: var(--text-primary);
+    border-color: var(--border-card);
+    transform: translateY(-1px);
+}
+
+.nav-item.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* Destaque ativo para o botão Varredura */
+#navRefresh {
+    background: var(--sidebar-btn-active-bg);
+    border-color: var(--sidebar-btn-active-border);
+    color: var(--sidebar-btn-active-text);
+}
+
+#navRefresh:hover:not(.disabled) {
+    filter: brightness(1.1);
+}
+
+#navRefresh.spinning .nav-icon svg {
+    animation: spin 1s linear infinite;
+}
+
+#navRefresh.spinning {
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+.nav-icon {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: -0.01em;
+}
+
+/* Popover Sobre */
+.about-tooltip-popover {
+    display: none;
+    position: absolute;
+    left: 102%;
+    bottom: 0;
+    width: 210px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    pointer-events: none;
+}
+
+.nav-item:hover .about-tooltip-popover {
+    display: block;
+}
+
+.tooltip-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #0284c7;
+    color: #fff;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.tooltip-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: block;
+}
+
+.tooltip-text {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-top: 4px;
+}
+
+.tooltip-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 8px 0;
+}
+
+.tooltip-techs {
+    display: flex;
+    gap: 4px;
+    font-size: 10px;
+    color: var(--text-dim);
+}

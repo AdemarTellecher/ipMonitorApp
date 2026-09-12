@@ -18,6 +18,7 @@ ifeq ($(OS),Windows_NT)
 
     MKDIR_CMD = cmd /C if not exist build\bin mkdir build\bin
     RM_CMD = cmd /C if exist build\bin rmdir /S /Q build\bin
+    RM_BINARY_CMD = cmd /C if exist $(subst /,\,$(BINARY)) del /F /Q $(subst /,\,$(BINARY)) & cmd /C if exist $(subst /,\,$(BINARY))~ del /F /Q $(subst /,\,$(BINARY))~
     RUN_CMD = .\$(BINARY)
 else
     UNAME_S := $(shell uname -s)
@@ -34,6 +35,7 @@ else
 
     MKDIR_CMD = mkdir -p $(OUT_DIR)
     RM_CMD = rm -rf $(OUT_DIR)
+    RM_BINARY_CMD = rm -f $(BINARY) $(BINARY)~
     RUN_CMD = ./$(BINARY)
 endif
 
@@ -55,6 +57,7 @@ info:
 build: info
 	@echo Compilando executavel unico e portatil para $(OUT_DIR)...
 	@$(MKDIR_CMD)
+	@$(RM_BINARY_CMD)
 	go build -ldflags="$(LDFLAGS)" -o $(BINARY) $(SRC)
 ifeq ($(DETECTED_OS),Darwin)
 	@echo Empacotando $(APP_BUNDLE)...

@@ -1,0 +1,67 @@
+/* ==============================================================================
+   IP Monitor - Componente: Titlebar (Barra Superior e Botão de Tema)
+   ============================================================================== */
+
+.titlebar {
+    height: 48px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px 0 18px;
+    flex-shrink: 0;
+    -webkit-app-region: drag;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brand-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 6px #38bdf8;
+}
+
+body.light-theme .brand-dot {
+    background: #0284c7;
+    box-shadow: 0 0 6px #0284c7;
+}
+
+.brand-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.titlebar-actions {
+    -webkit-app-region: no-drag;
+}
+
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--btn-theme-bg);
+    border: 1px solid var(--btn-theme-border);
+    border-radius: 8px;
+    color: var(--btn-theme-text);
+    padding: 6px 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.theme-toggle-btn:hover {
+    filter: brightness(1.08);
+}
+
+.theme-toggle-btn svg {
+    color: var(--btn-theme-text);
+}

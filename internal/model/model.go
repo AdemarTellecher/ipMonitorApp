@@ -75,10 +75,8 @@ func NewRepository(dbFile string) (*IPRepository, error) {
 		return nil, err
 	}
 
-	// Ativa WAL mode e timeout de contenção para suportar acessos concorrentes sem "database is locked"
-	_, _ = db.Exec("PRAGMA journal_mode=WAL;")
-	_, _ = db.Exec("PRAGMA busy_timeout=5000;")
-	_, _ = db.Exec("PRAGMA synchronous=NORMAL;")
+	// Modo tradicional (DELETE): garante apenas o arquivo .db único, sem gerar .db-wal ou .db-shm
+	_, _ = db.Exec("PRAGMA journal_mode=DELETE;")
 
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS ips (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -200,8 +200,14 @@ func TestMonitorService_UpdateAllStatuses(t *testing.T) {
 
 	svc := service.NewMonitorService(repo)
 
-	_ = svc.AddIP("127.0.0.1")
-	_ = svc.AddIP("192.0.2.1") // IP RFC 5737 de teste não roteável (deve ficar offline)
+	err = repo.AddDevice(model.IPDevice{IP: "127.0.0.1", Name: "Localhost", Method: "PING", ThresholdMs: 1000})
+	if err != nil {
+		t.Fatalf("Erro ao adicionar host 1: %v", err)
+	}
+	err = repo.AddDevice(model.IPDevice{IP: "192.0.2.1", Name: "RFC Test", Method: "PING", ThresholdMs: 1000})
+	if err != nil {
+		t.Fatalf("Erro ao adicionar host 2: %v", err)
+	}
 
 	overview, err := svc.UpdateAllStatuses()
 	if err != nil {

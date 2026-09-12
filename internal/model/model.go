@@ -77,6 +77,7 @@ func NewRepository(dbFile string) (*IPRepository, error) {
 
 	// Modo tradicional (DELETE): garante apenas o arquivo .db único, sem gerar .db-wal ou .db-shm
 	_, _ = db.Exec("PRAGMA journal_mode=DELETE;")
+	_, _ = db.Exec("PRAGMA busy_timeout=5000;")
 
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS ips (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,

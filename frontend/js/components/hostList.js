@@ -110,20 +110,21 @@ export function renderHosts(data) {
             card.dataset.id = device.id;
 
             const badgeClass = isOnline ? 'online' : (isOffline ? 'offline' : 'unknown');
-            const hostName = device.name ? device.name : 'Não especificado (Host manual)';
+            const displayName = device.name && device.name.trim() !== '' ? device.name : device.ip;
+            const isFallback = !device.name || device.name.trim() === '';
             const hostMethod = device.method ? device.method : 'PING';
             const thresholdMs = device.thresholdMs ? `${device.thresholdMs} ms` : '2000 ms';
             const hostUUID = device.uuid ? device.uuid : '—';
 
             card.innerHTML = `
                 <div class="host-main-row">
-                    <div class="host-ip-col">
+                    <div class="host-name-col ${isFallback ? 'fallback-ip' : ''}">
                         <button class="host-expand-btn" title="Expandir/Recolher Detalhes" type="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6"></polyline>
                             </svg>
                         </button>
-                        <span>${device.ip}</span>
+                        <span class="host-title-text" title="${displayName}">${displayName}</span>
                     </div>
                     <div>
                         <span class="status-badge ${badgeClass}">
@@ -135,8 +136,8 @@ export function renderHosts(data) {
                 <div class="host-details-drawer">
                     <div class="details-grid">
                         <div class="detail-item full-width">
-                            <span class="detail-label">NOME / IDENTIFICAÇÃO</span>
-                            <span class="detail-value host-name-value" style="${!device.name ? 'color: var(--text-dim); font-style: italic;' : ''}">${hostName}</span>
+                            <span class="detail-label">ENDEREÇO IP / HOST</span>
+                            <span class="detail-value mono host-ip-value">${device.ip}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">MÉTODO DE TESTE</span>

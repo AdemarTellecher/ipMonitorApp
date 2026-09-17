@@ -497,23 +497,13 @@ func checkIPWithTimeout(target string, timeout time.Duration) string {
 	}
 
 	// 2. Fallback para ping nativo do sistema operacional (macOS / Linux / Windows)
-	// Essencial no macOS onde o utilitário `/sbin/ping` possui setuid-root e sempre tem permissão ICMP
+	// Essencial no macOS onde o utilitário `/sbin/ping` possui setuid-root e sempre tem permissão ICMP,
+	// e no Windows quando o socket raw ICMP falha ou não tem privilégios.
 	if pingSystemCommand(target) {
 		return "Online"
 	}
 
-	// 3. Fallback para portas TCP comuns de serviços (80, 443, 8080, 22)
-	tcpTimeout := timeout
-	if tcpTimeout > 1000*time.Millisecond {
-		tcpTimeout = 1000 * time.Millisecond
-	}
-	for _, port := range []string{"443", "80", "8080", "22"} {
-		conn, dialErr := net.DialTimeout("tcp", net.JoinHostPort(target, port), tcpTimeout)
-		if dialErr == nil {
-			_ = conn.Close()
-			return "Online"
-		}
-	}
-
+	// Não realizamos fallback silencioso para TCP quando o método é PING (ICMP),
+	// pois portas abertas/firewalls/proxies mascaram o status real do host ICMP.
 	return "Offline"
 }

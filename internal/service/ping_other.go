@@ -5,6 +5,7 @@ package service
 import (
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 // pingSystemCommand executa o ping nativo em sistemas Unix-like (macOS / Linux)
@@ -21,6 +22,10 @@ func pingSystemCommand(target string) bool {
 		cmd = exec.Command("ping", "-c", "1", target)
 	}
 
-	err := cmd.Run()
-	return err == nil
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return false
+	}
+	return isUnixPingOutputSuccess(string(out))
 }
+

@@ -86,16 +86,33 @@ body.light-theme .host-item-card {
     box-sizing: border-box;
 }
 
+.host-name-col,
 .host-ip-col {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'JetBrains Mono', monospace;
     font-size: 13.5px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary);
     letter-spacing: -0.01em;
     line-height: 1.4;
+    overflow: hidden;
+    min-width: 0;
+    flex: 1;
+    margin-right: 12px;
+}
+
+.host-title-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+.host-name-col.fallback-ip {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--text-secondary);
 }
 
 /* Seta Expansora (Chevron) */
@@ -218,7 +235,14 @@ body.light-theme .host-details-drawer {
     font-weight: 600;
 }
 
-body.light-theme .detail-value.mono {
+.detail-value.host-ip-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #38bdf8;
+}
+
+body.light-theme .detail-value.mono,
+body.light-theme .detail-value.host-ip-value {
     color: #0284c7;
 }
 

@@ -5,7 +5,6 @@ package service
 import (
 	"os/exec"
 	"runtime"
-	"strings"
 )
 
 // pingSystemCommand executa o ping nativo em sistemas Unix-like (macOS / Linux)
